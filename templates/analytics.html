@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Analytics</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body>
+
+
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+
+
+<div class="container">
+
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+
+    <div class="logo-header">
+
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+
+        <h2 class="title">
+            SCIENCE LABORATORY IN CITY COLLEGE OF ANGELES
+        </h2>
+
+    </div>
+
+
+
+    <button class="menu-btn" onclick="location.href='dashboard'">
+        📊 Dashboard
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='borrow'">
+        📥 Borrowing
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='returning'">
+        🔄 Returning
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='broken'">
+        📋 List Items
+    </button>
+
+
+    <button class="menu-bt active" onclick="location.href='analytics'">
+        📈 Data Analytics
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='documentation'">
+        📄 Documentation
+    </button>
+
+
+
+
+    <div class="user-box">
+
+        <p class="name">
+            Ashley Basilio
+        </p>
+
+        <small>
+            basilio@cca.edu.ph
+        </small>
+
+    </div>
+
+
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+
+<h2 class="page-title">
+    Data Analytics
+</h2>
+
+
+
+
+<div class="analytics-container">
+
+
+
+
+
+<!-- TOP BORROWERS -->
+
+<div class="analytics-card">
+
+
+<h3>
+Top Borrowers
+</h3>
+
+
+
+<ul>
+
+{% for row in top_borrowers %}
+
+<li>
+
+{{ loop.index }}.
+{{ row["BorrowerName"] }}
+
+-
+
+{{ row["TotalBorrowed"] }}
+items
+
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+
+
+
+<canvas id="borrowerChart"></canvas>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- MOST BORROWED EQUIPMENT -->
+
+
+<div class="analytics-card">
+
+
+<h3>
+Most Borrowed Equipment
+</h3>
+
+
+
+
+<ul>
+
+
+{% for row in top_items %}
+
+
+<li>
+
+{{ loop.index }}.
+{{ row["Type"] }}
+
+-
+
+{{ row["BorrowCount"] }}
+times
+
+
+</li>
+
+
+{% endfor %}
+
+
+
+</ul>
+
+
+
+
+<canvas id="equipmentChart"></canvas>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= DATA FOR JAVASCRIPT ================= -->
+
+
+<script type="application/json" id="borrowerData">
+
+{
+
+"names":[
+
+{% for row in top_borrowers %}
+
+"{{ row['BorrowerName'] }}"{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+],
+
+
+"values":[
+
+{% for row in top_borrowers %}
+
+{{ row['TotalBorrowed'] }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+]
+
+}
+
+</script>
+
+
+
+
+
+<script type="application/json" id="equipmentData">
+
+{
+
+"names":[
+
+{% for row in top_items %}
+
+"{{ row['Type'] }}"{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+],
+
+
+"values":[
+
+{% for row in top_items %}
+
+{{ row['BorrowCount'] }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+]
+
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+
+
+document.addEventListener("DOMContentLoaded", function(){
+
+
+
+// GET DATA
+
+const borrowerData = JSON.parse(
+
+document.getElementById("borrowerData").textContent
+
+);
+
+
+
+const equipmentData = JSON.parse(
+
+document.getElementById("equipmentData").textContent
+
+);
+
+
+
+
+
+
+
+
+// BORROWER BAR CHART
+
+
+new Chart(
+
+document.getElementById("borrowerChart"),
+
+{
+
+
+type:"bar",
+
+
+data:{
+
+
+labels: borrowerData.names,
+
+
+datasets:[{
+
+
+label:"Items Borrowed",
+
+
+data: borrowerData.values
+
+
+
+}]
+
+},
+
+
+
+options:{
+
+
+responsive:true,
+
+
+scales:{
+
+
+y:{
+
+
+beginAtZero:true
+
+
+}
+
+
+}
+
+
+
+}
+
+
+}
+
+
+
+);
+
+
+
+
+
+
+
+
+
+
+// EQUIPMENT DOUGHNUT CHART
+
+
+new Chart(
+
+document.getElementById("equipmentChart"),
+
+{
+
+
+type:"doughnut",
+
+
+data:{
+
+
+labels: equipmentData.names,
+
+
+datasets:[{
+
+
+label:"Borrow Count",
+
+
+data: equipmentData.values
+
+
+
+}]
+
+},
+
+
+
+options:{
+
+
+responsive:true,
+
+
+plugins:{
+
+
+legend:{
+
+
+position:"bottom"
+
+
+}
+
+
+}
+
+
+
+}
+
+
+}
+
+
+
+);
+
+
+
+
+});
+
+
+
+</script>
+
+</body>
+
+</html>

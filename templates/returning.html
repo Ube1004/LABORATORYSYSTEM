@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Returning</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+<div class="container">
+
+<div class="sidebar">
+
+    <div class="logo-header">
+         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+        <h2 class="title">SCIENCE LABORATORY IN CITY COLLEGE OF ANGELES</h2>
+    </div>
+
+    <button class="menu-btn" onclick="location.href='dashboard'">📊 Dashboard</button>
+    <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
+    <button class="menu-btn active" onclick="location.href='returning'">🔄 Returning</button>
+    <button class="menu-btn" onclick="location.href='broken'">📋 List Items</button>
+    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+    <button class="menu-btn" onclick="location.href='documentation'">📄 Documentation</button>
+    
+
+    <div class="user-box">
+        <p class="name">Ashley Basilio</p>
+        <small>basilio@cca.edu.ph</small>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="main" style="flex-direction: column; align-items: stretch;">
+
+    <!-- TOP SUMMARY -->
+    <div style="display:flex; gap:15px; margin-bottom:20px;">
+
+    <div class="card">
+        <h3 id="returnedCount">
+            {{ data | selectattr('Status', 'equalto', 'Returned') | list | length }}
+        </h3>
+        <p>Returned</p>
+    </div>
+
+    <div class="card">
+        <h3 id="notReturnedCount">
+            {{ data | rejectattr('Status', 'equalto', 'Returned') | list | length }}
+        </h3>
+        <p>Not Returned</p>
+    </div>
+
+    <div class="card" onclick="openForm('returnForm')">
+        <h3>
+            Return Items
+
+        </h3>
+        <p>Using QR</p>
+
+    </div>
+    <div class="card" onclick="openForm('manualReturnForm')">
+        <h3>
+            Return Items
+
+        </h3>
+        <p>Using Code/Studen ID</p>
+
+    </div>
+
+</div>
+<input
+    type="text"
+    id="logSearch"
+    placeholder="Search ID, name, item..."
+    onkeyup="searchLog()"
+>
+
+{% if session['role'] == 'superAdmin' %}
+    <!-- TABLE -->
+    <div class="welcome-box">
+        <h2>Return Records</h2>
+
+        <table style="width:100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background:#f0f0f0;">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Institute</th>
+            <th>Date Borrowed</th>
+            <th>Due Date</th>
+            <th>Borrowed Item</th>
+            <th>Date Returned</th>
+            <th>Approved By</th>
+            <th id="tablereturn"style="">Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="returnTable">
+        {% for row in data %}
+        <tr>
+            <td>{{ row['SchoolID'] }}</td>
+            <td>{{ row['BorrowerName'] }}</td>
+            <td>{{ row['Email'] }}</td>
+            <td>{{ row['Contact'] }}</td>
+            <td>{{ row['Department'] }}</td>
+            <td>{{ row['DateBorrowed'] }}</td>
+            <td>{{ row['ExpectedReturnDate'] }}</td>
+            
+            <td>
+                {% for item in row['Items'] %}
+                    <div>{{ item }}</div>
+                {% endfor %}
+            </td>
+
+            <td>{{ row['DateReturned'] }}</td>
+            <td>{{ row['ApprovedBy'] }}</td>
+            <td id="returntd">
+                <button 
+                    class="modify-btn"
+                    onclick="modifyRecord(`{{ row['SchoolID'] }}`)">
+                    Modify
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+
+    {% else %}
+    <!-- TABLE -->
+    <div class="welcome-box">
+        <h2>Return Records</h2>
+
+        <table style="width:100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background:#f0f0f0;">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Institute</th>
+            <th>Date Borrowed</th>
+            <th>Due Date</th>
+            <th>Borrowed Item</th>
+            <th>Date Returned</th>
+            <th id="tablereturn"style="display:none;">Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="returnTable">
+        {% for row in data %}
+        <tr>
+            <td>{{ row['SchoolID'] }}</td>
+            <td>{{ row['BorrowerName'] }}</td>
+            <td>{{ row['Email'] }}</td>
+            <td>{{ row['Contact'] }}</td>
+            <td>{{ row['Department'] }}</td>
+            <td>{{ row['DateBorrowed'] }}</td>
+            <td>{{ row['ExpectedReturnDate'] }}</td>
+            
+            <td>
+                {% for item in row['Items'] %}
+                    <div>{{ item }}</div>
+                {% endfor %}
+            </td>
+
+            <td>{{ row['DateReturned'] }}</td>
+            
+            <td id="returntd" style = "display:none;">
+                <button 
+                    class="modify-btn"
+                    onclick="modifyRecord(`{{ row['SchoolID'] }}`)">
+                    Modify
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+
+    {% endif %}
+
+    <div id="returnForm" class="modal">
+  <div class="modal-content large-form">
+
+    <span class="close" onclick="closeForm('returnForm')">&times;</span>
+
+    <div class="form-header">
+        <h2>CITY COLLEGE OF ANGELES</h2>
+        <h2>Angeles City</h2>
+        <h3>SCIENCE LABORATORY</h3>
+        <h4>BORROWER’S FORM</h4>
+    </div>
+
+
+    <div class="col">
+        <label>Name :</label>
+        <input type="text" id="Name" name="Name">
+    </div>
+
+    <div class="col">
+        <label>Email:</label>
+        <input type="text" id="Email" name="Email">
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Student ID:</label>
+            <input type="text" id="StudentID" name="StudentID">
+        </div>
+
+        <div class="col">
+            <label>Institute:</label>
+            <input type="text" id="Institute" name="Institute">
+        </div>
+
+        <div class="col">
+            <label>Contact No.</label>
+            <input type="text" id="Contact" name="Contact">
+        </div>
+
+        <div class="col">
+            <label>Date Borrowed:</label>
+            <input type="date" id="dateBorrowed">
+        </div>
+
+        <div class="col">
+            <label>Date of Return:</label>
+            <input type="date" id="dateReturn">
+        </div>
+    </div>
+<div class="col">
+    <label>Item Returning:</label>
+
+    <div class="item-box" id="itemBox">
+        
+        <!-- empty box -->
+    </div>
+</div>
+
+<div class="button-group">
+    <button type="button" class="scan-btn" onclick="startReturnScanner()">
+        Scan Items
+    </button>
+
+    <button type="button" class="scan-btn" onclick="stopReturnScanner()">
+        Stop Scan Items
+    </button>
+
+   <button type="button" class="confirm-btn" onclick="updateReturn()" id="confirmBtn">
+    Confirm Return
+</button>
+</div>
+
+<div id="returnReader"></div>
+
+<div class="item-box" id="returnItemBox">
+    <!-- returned items appear here -->
+</div>
+
+    </form>
+  </div>
+</div>
+<div id="manualReturnForm" class="modal">
+  <div class="modal-content large-form">
+
+    <span class="close" onclick="closeForm('manualReturnForm')">&times;</span>
+
+    <div class="form-header">
+        <h2>CITY COLLEGE OF ANGELES</h2>
+        <h2>Angeles City</h2>
+        <h3>SCIENCE LABORATORY</h3>
+        <h4>BORROWER’S FORM</h4>
+    </div>
+
+
+    <div class="col">
+        <label>Enter Code:</label>
+        <input type="text" id="code" name="code">
+    </div>
+    <div class="col">
+        <label>Enter Student ID:</label>
+        <input type="text" id="studentId" name="studentId">
+    </div>
+
+   
+        
+<div class="col">
+    <label>Item Returning:</label>
+
+    <div class="item-box" id="itemBox">
+        
+        <!-- empty box -->
+    </div>
+</div>
+<div class="button-group">
+    
+    <button class="confirm-btn" onclick="manualReturn()" id="confirmBtn">Confirm Return</button>
+</div>
+   
+
+    </form>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Page</title>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- LOGO SECTION -->
+    <div class="logo-card">
+
+        <img src="{{ url_for('static', filename='images/logo(1).png') }}" class="item-img">
+
+        <h2>
+            CITY COLLEGE OF<br>
+            ANGELES
+        </h2>
+
+    </div>
+
+
+
+ <div class="login-box">
+
+    <h1>Sign In</h1>
+
+    <form>
+
+        <div class="input-box">
+            <input
+                type="text"
+                placeholder="Email"
+                id="username"
+                required>
+        </div>
+
+        <div class="input-box">
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required>
+        </div>
+
+        <button type="button" onclick="login()">Login</button>
+
+    </form>
+
+</div>
+
+<style>
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+    linear-gradient(
+        rgba(0,0,0,.45),
+        rgba(0,0,0,.45)
+    ),
+    url("{{ url_for('static', filename='images/school.png') }}");
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+</style>

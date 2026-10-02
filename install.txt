@@ -1,0 +1,29 @@
+
+
+install python
+python -m pip install flask
+python -m pip install qrcode
+python -m pip install pillow
+python -m pip install opencv-python
+python -m pip install pyzbar
+pip install jinja2 
+
+sudo apt update
+py -3.12 -m pip install flask
+sudo apt install -y libzbar0
+
+python -m pip install numpy
+
+python -m pip install flask qrcode pillow opencv-python pyzbar numpy
+sudo apt update && sudo apt install -y libzbar0
+
+sudo apt-get update
+sudo apt-get install -y libgl1
+Ctrl + Shift + P
+→ "Python: Select Interpreter"
+
+
+sudo apt update
+sudo apt install -y libgl1
+
+python -m venv venv

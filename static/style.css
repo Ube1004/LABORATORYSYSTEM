@@ -1,0 +1,124 @@
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+
+
+
+/* MAIN CONTAINER */
+
+.container{
+
+    width:1100px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:70px;
+}
+
+/* LOGO CARD */
+
+.logo-card{
+
+    width:370px;
+    height:500px;
+    background:white;
+    border-radius:30px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+
+}
+
+.logo-card img{
+    width:230px;
+}
+
+.logo-card h2 {
+    margin-top:35px;
+    text-align:center;
+    font-family:Georgia, serif;
+    font-size:36px;    
+    font-weight:bold;
+    line-height:1.2;
+    color:#302514;
+}
+/* LOGIN BOX */
+
+.login-box{
+    width:480px;
+    padding:50px;
+    border-radius:30px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:
+    0 8px 32px rgba(0,0,0,.25);
+}
+
+/* TITLE */
+.login-box h1{
+    text-align:center;
+    font-size:52px;
+    margin-bottom:45px;
+    font-family:Georgia,serif;
+    color:#ffffff;
+}
+
+
+
+/* INPUT AREA */
+.input-box{
+    position:relative;
+    margin-bottom:35px;
+}
+.input-box input{
+    width:100%;
+    padding:12px 45px 12px 0;
+    background:transparent;
+    border:none;
+    outline:none;
+    border-bottom:2px solid rgba(255,255,255,.8);
+    color:white;
+    font-size:18px;
+}
+
+.input-box input::placeholder{
+    color:white;
+}
+/* BUTTON */
+
+button{
+    width:290px;
+    height:55px;
+    margin:auto;
+    display:block;
+    border:none;
+    border-radius:40px;
+    background:#4f6f35;
+    color:white;
+    font-size:24px;
+    font-family:Georgia,serif;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#385122;
+    transform:translateY(-2px);
+}
+
+.icon{
+    position:absolute;
+    right:8px;
+    top:8px;
+    font-size:20px;
+    color:#2f4722;
+}
+

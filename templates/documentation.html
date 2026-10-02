@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Documentation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+<div class="container">
+
+<div class="sidebar">
+
+    <div class="logo-header">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+        <h2 class="title">SCIENCE LABORATORY IN CITY COLLEGE OF ANGELES</h2>
+    </div>
+
+    <button class="menu-btn" onclick="location.href='dashboard'">📊 Dashboard</button>
+    <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
+    <button class="menu-btn" onclick="location.href='returning'">🔄 Returning</button>
+    <button class="menu-btn" onclick="location.href='broken'">📋 List Items</button>
+    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+    <button class="menu-btn active" onclick="location.href='documentation'">📄 Documentation</button>
+    
+
+    <div class="user-box">
+        <p class="name">Ashley Basilio</p>
+        <small>basilio@cca.edu.ph</small>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="main">
+    <h2 class="page-title">Documentation</h2>
+
+    
+
+<!-- ONE MODAL ONLY -->
+<div id="docModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDoc()">&times;</span>
+    <h3 id="modalTitle"></h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Email</th>
+          <th>Contact</th><th>Institute</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="docTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="previewContainer"></div>
+
+<video id="camera" autoplay playsinline></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+<br>
+
+
+<div class="button-container">
+
+    <button onclick="takePhoto()">
+        📷 Take Photo
+    </button>
+
+    <button onclick="uploadPhotos()">
+        ✅ Confirm Borrow
+    </button>
+
+</div>
+
+<img id="preview" width="400">
+
+</body>
+
+</html>

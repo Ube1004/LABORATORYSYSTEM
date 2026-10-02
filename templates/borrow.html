@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Borrowing</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+</head>
+
+<body>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+
+<div class="container">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+    <div class="logo-header">
+
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+
+        <h2 class="title">
+            SCIENCE LABORATORY IN<br>
+            CITY COLLEGE OF ANGELES
+        </h2>
+
+    </div>
+
+
+    <button class="menu-btn" onclick="location.href='dashboard'">
+        📊 Dashboard
+    </button>
+
+
+    <button class="menu-btn active">
+        📥 Borrowing
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='returning'">
+        🔄 Returning
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='broken'">
+        📋 List Items
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='analytics'">
+        📈 Data Analytics
+    </button>
+
+
+    <button class="menu-btn" onclick="location.href='documentation'">
+        📄 Documentation
+    </button>
+
+
+
+    <div class="user-box">
+
+        <p class="name">
+            Ashley Basilio
+        </p>
+
+        <small>
+            basilio@cca.edu.ph
+        </small>
+
+    </div>
+
+
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+
+
+</div>
+
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<div class="main">
+
+
+<!-- ================= TOP BUTTONS ================= -->
+            {% if session['role'] == 'superAdmin' %}
+                <button onclick="openForm('createAccount')">Create Account</button>
+                <button onclick="manageAccount()">Manage Account</button>
+            {% endif %}
+
+
+<div class="top-bar">
+
+
+    <button class="qr-btn" onclick="openForm('checkID')">
+
+        <img 
+        src="{{ url_for('static', filename='images/icon.png') }}"
+        class="qr-icon">
+
+        Borrow Form
+
+    </button>
+
+
+
+    <button class="top-btn" onclick="openForm('reservationForm')">
+
+        📅 Reservation Form
+
+    </button>
+
+
+
+    <button class="top-btn" onclick="openForm('breakageForm')">
+
+        ❌ Breakage Form
+
+    </button>
+
+
+
+    <button class="top-btn" onclick="openForm('requisitionForm')">
+
+        📄 Requisition Slip
+
+    </button>
+
+
+</div>
+
+
+
+
+<!-- ================= LABORATORY INVENTORY ================= -->
+
+<div class="inventory-container">
+
+    <div class="inventory-header">
+        <h2>Laboratory Inventory</h2>
+        <p>
+            View and search available laboratory equipment, chemicals,
+            supplies, and other laboratory resources.
+        </p>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="inventory-search-container">
+        <i class="fas fa-search"></i>
+
+        <input
+            type="text"
+            id="inventorySearch"
+            placeholder="Search for an item..."
+            oninput="searchInventory()"
+        >
+    </div>
+
+    <!-- SEARCH RESULT -->
+    <p class="search-result" id="searchResult">
+        Showing all laboratory inventory items.
+    </p>
+
+
+    <!-- ================= NON-TOXIC / LOW-HAZARD CHEMICALS ================= -->
+
+<div class="inventory-category category-nontoxic">
+
+    <div class="category-header">
+        <h3>🟢 Non-Toxic / Low-Hazard Chemicals</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "NON-TOXIC") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "NON-TOXIC" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                              {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= TOXIC CHEMICALS ================= -->
+
+<div class="inventory-category category-toxic">
+
+    <div class="category-header">
+        <h3>🟠 Toxic Chemicals</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "TOXIC CHEMICALS") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "TOXIC CHEMICALS" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= HAZARDOUS CHEMICALS ================= -->
+
+<div class="inventory-category category-hazardous">
+
+    <div class="category-header">
+        <h3>🔴 Hazardous Chemicals</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "HAZARDOUS CHEMICALS") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "HAZARDOUS CHEMICALS" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= GLASSWARE ================= -->
+
+<div class="inventory-category category-equipment">
+
+    <div class="category-header">
+        <h3>🔵 Glassware</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "GLASSWARE") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "GLASSWARE" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= LABORATORY EQUIPMENT ================= -->
+
+<div class="inventory-category category-equipment">
+
+    <div class="category-header">
+        <h3>🔵 Laboratory Equipment</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "LABORATORY EQUIPMENT") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "LABORATORY EQUIPMENT" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= LABORATORY SUPPLIES ================= -->
+
+<div class="inventory-category category-supplies">
+
+    <div class="category-header">
+        <h3>🟣 Laboratory Supplies</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "LABORATORY SUPPLIES") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "LABORATORY SUPPLIES" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= PREPARED SLIDES ================= -->
+
+<div class="inventory-category category-slides">
+
+    <div class="category-header">
+        <h3>🟡 Prepared Slides</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "PREPARED SLIDES") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "REPARED SLIDES" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= LABORATORY MODELS ================= -->
+
+<div class="inventory-category category-models">
+
+    <div class="category-header">
+        <h3>🟤 Laboratory Models</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "LABORATORY MODELS") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "LABORATORY MODELS" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= FACILITY / FURNITURE ================= -->
+
+<div class="inventory-category category-facility">
+
+    <div class="category-header">
+        <h3>⚪ Facility / Furniture</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "FACILITY") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "FACILITY" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ================= SAFETY EQUIPMENT ================= -->
+
+<div class="inventory-category category-safety">
+
+    <div class="category-header">
+        <h3>🔵 Safety Equipment</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "SAFETY EQUIPMENT") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] == "SAFETY EQUIPMENT" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                            {% if session["role"] == "superAdmin" %}
+                            <td>
+                                <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                    Modify
+                                </button>
+                            </td>
+                             {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ================= OTHERS ================= -->
+
+<div class="inventory-category category-safety">
+
+    <div class="category-header">
+        <h3>🔵 OTHERS</h3>
+
+        <span class="category-count">
+            <span class="category-visible-count">{{ items | selectattr("Class", "equalto", "OTHERS") | list | length }}</span> items
+        </span>
+    </div>
+
+    <div class="inventory-table-wrapper">
+
+        <table class="inventory-table">
+
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Item</th>
+                    <th style="text-align:center;">Category</th>
+                    <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Unit/Remarks</th>
+                    {% if session["role"] == "superAdmin" %}
+                                        <th style="text-align:center;"> Action
+                                        
+                                        </th>
+                                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                    {% if item["Class"] is none or item["Class"]|trim == "" or item["Class"] == "None" or item["Class"] == "NULL" or item["Class"] == "OTHERS" %}
+
+                        <tr>
+                            <td>{{ item["Type"] }}</td>
+                            <td>{{ item["Category"] }}</td>
+                            <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["Remarks"] }}</td>
+                                {% if session["role"] == "superAdmin" %}
+                                        <td>
+                                            <button onclick="openForm('modifyForm', '{{ item['ItemID'] }}')">
+                                                Modify
+                                            </button>
+                                        </td>
+                                    {% endif %}
+                        </tr>
+
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+    <!-- ================= NO RESULT ================= -->
+
+    <div id="noInventoryResult">
+
+        <i class="fas fa-search"></i>
+
+        <strong>No matching item found.</strong>
+
+        <p>
+            Try searching for another laboratory equipment,
+            chemical, supply, slide, or model.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- ================= BORROW FORM MODAL ================= -->
+
+<div id="borrowForm" class="modal">
+
+    <div class="modal-content large-form">
+
+        <span class="close" onclick="closeForm('borrowForm')">&times;</span>
+
+        <div class="form-header">
+
+    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+         class="form-logo"
+         alt="City College of Angeles Logo">
+
+
+            <h2>CITY COLLEGE OF ANGELES</h2>
+
+            <h2>
+                Institute of Education, Arts and Sciences
+            </h2>
+
+            <h3>SCIENCE LABORATORY</h3>
+
+            <h4>BORROWER'S FORM</h4>
+
+        </div>
+
+
+        <div class="col">
+
+            <label>Name:</label>
+
+            <input
+                type="text"
+                id="Name"
+                name="Name"
+                placeholder="Enter full name">
+
+        </div>
+
+
+        <div class="col">
+
+            <label>Email:</label>
+
+            <input
+                type="email"
+                id="Email"
+                name="Email"
+                placeholder="Enter email address">
+
+        </div>
+
+
+        <div class="row">
+
+            <div class="col">
+
+                <label>Student ID:</label>
+
+                <input
+                    type="text"
+                    id="StudentID"
+                    name="StudentID"
+                    placeholder="Enter student ID">
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Institute:</label>
+
+                <input
+                    type="text"
+                    id="Institute"
+                    name="Institute"
+                    placeholder="Enter institute">
+
+            </div>
+
+
+
+<div class="col">
+
+    <label>Contact No.:</label>
+
+    <input
+        type="tel"
+        id="Contact"
+        name="Contact"
+        placeholder="09XXXXXXXXX"
+        pattern="09[0-9]{9}"
+        maxlength="11"
+        required>
+
+</div>
+
+
+
+
+        <div class="row">
+
+            <div class="col">
+
+                <label>Date Borrowed:</label>
+
+                <input
+                    type="date"
+                    id="dateBorrowed">
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Date of Return:</label>
+
+                <input
+                    type="date"
+                    id="dateReturn">
+
+            </div>
+
+        </div>
+
+
+        <div class="col">
+
+            <label>Approved by:</label>
+
+            <input
+                type="text"
+                id="approvedBy"
+                placeholder="Enter approving person">
+            <label>Remarks:</label>
+            <input
+                type="text"
+                id="remarks"
+                placeholder="Enter Reasonings">
+
+        </div>
+        
+        
+
+        </div>
+
+        <div class="col">
+
+            <label>Item Borrowing:</label>
+
+            <div class="item-box" id="itemBox">
+                <!-- scanned items will appear here -->
+            </div>
+
+        </div>
+
+
+        <div class="button-group">
+
+    <button
+        type="button"
+        class="scan-btn"
+        onclick="startScanner()">
+        Scan Items
+    </button>
+    <button
+        type="button"
+        class="scan-btn"
+        onclick="stopScanner()">
+        Stop Scanner
+    </button>
+
+</div>
+
+<div id="reader"></div>
+
+            <button
+                class="confirm-btn"
+                onclick="confirmborrow(borrowData)"
+                id="confirmBtn"
+                style="display:none;">
+                Confirm Borrow
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= QR SCANNER MODAL ================= -->
+
+<div id="qrModal" class="qr-modal">
+
+    <div class="qr-content">
+
+        <span
+            class="close-btn"
+            onclick="closeScanner()">
+            &times;
+        </span>
+
+        <h3>Scan QR Code</h3>
+
+        <div id="reader"></div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= NOTICE POPUP ================= -->
+
+<div popover id="mydiv">
+
+    <h2>Notice!</h2>
+
+    <hr>
+
+    <p>
+        Please insert the required information first.
+    </p>
+
+    <button
+        popovertarget="mydiv"
+        popovertargetaction="hide">
+        Close
+    </button>
+
+</div>
+
+
+<!-- ================= RESERVATION FORM ================= -->
+
+
+
+<div id="reservationForm" class="modal">
+
+    <div class="modal-content form-container">
+
+        <span class="close" onclick="closeForm('reservationForm')">&times;</span>
+
+ <div class="form-header">
+
+    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+         class="form-logo"
+         alt="City College of Angeles Logo">
+
+            <h2>CITY COLLEGE OF ANGELES</h2>
+
+            <h2>
+                Institute of Education, Arts and Sciences
+            </h2>
+
+            <h3>SCIENCE LABORATORY</h3>
+
+            <h4>RESERVATION FORM</h4>
+
+        </div>
+
+
+        <form>
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label>Nature of Activity:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter nature of activity">
+
+                </div>
+
+
+                <div class="col">
+
+                    <label>Date Filed:</label>
+
+                    <input type="date">
+
+                </div>
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Objective:</label>
+
+                <input
+                    type="text"
+                    placeholder="Enter objective">
+
+            </div>
+
+
+            <table border="1" width="100%" cellspacing="0" cellpadding="5">
+
+                <thead>
+
+                    <tr>
+                        <th>Date of Activity</th>
+                        <th>Time</th>
+                        <th>Yr. & Section</th>
+                        <th>Number of Students</th>
+                        <th>Materials/Equipment Needed</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                  
+                </tbody>
+
+            </table>
+
+
+            <div class="col">
+
+                <label>Teacher in Charge:</label>
+
+                <input
+                    type="text"
+                    placeholder="Enter teacher's name">
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Approved by:</label>
+
+                <input
+                    type="text"
+                    placeholder="Enter approving person">
+
+            </div>
+
+
+            <button type="submit">
+                Submit Reservation
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= BREAKAGE FORM ================= -->
+
+<div id="breakageForm" class="modal">
+
+    <div class="modal-content large-form">
+
+        <span class="close" onclick="closeForm('breakageForm')">&times;</span>
+
+
+  <div class="form-header">
+
+    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+         class="form-logo"
+         alt="City College of Angeles Logo">
+
+
+            <h2>CITY COLLEGE OF ANGELES</h2>
+
+            <h2>
+                Institute of Education, Arts and Sciences
+            </h2>
+
+            <h3>SCIENCE LABORATORY</h3>
+
+            <h4>BREAKAGE FORM</h4>
+
+        </div>
+
+
+        <form>
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label>Subject:</label>
+                    <input type="text" placeholder="Enter subject">
+
+                    <label>Group No.:</label>
+                    <input type="text" placeholder="Enter group number">
+
+                    <label>Schedule:</label>
+                    <input type="text" placeholder="Enter schedule">
+
+                </div>
+
+
+                <div class="col">
+
+                    <label>Instructor's Name & Signature:</label>
+                    <input
+                        type="text"
+                        placeholder="Enter instructor's name">
+
+                    <label>Course & Section:</label>
+                    <input
+                        type="text"
+                        placeholder="Enter course and section">
+
+                    <label>Date:</label>
+                    <input type="date">
+
+                </div>
+
+            </div>
+
+
+            <h4>
+                Group Members and Student Numbers
+            </h4>
+
+
+            <div class="members">
+
+                <input type="text" placeholder="1. Name & Student No.">
+                <input type="text" placeholder="2. Name & Student No.">
+                <input type="text" placeholder="3. Name & Student No.">
+                <input type="text" placeholder="4. Name & Student No.">
+                <input type="text" placeholder="5. Name & Student No.">
+
+                <input type="text" placeholder="6. Name & Student No.">
+                <input type="text" placeholder="7. Name & Student No.">
+                <input type="text" placeholder="8. Name & Student No.">
+                <input type="text" placeholder="9. Name & Student No.">
+                <input type="text" placeholder="10. Name & Student No.">
+
+            </div>
+
+
+            <table class="breakage-table">
+
+                <tr>
+
+                    <th>Quantity</th>
+                    <th>Item Description</th>
+                    <th>Remarks</th>
+                    <th>Unit Cost</th>
+                    <th>Total Amount</th>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <input type="number" min="1">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <input type="number" min="1">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <input type="number" min="1">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="text">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                    <td>
+                        <input type="number" min="0" step="0.01">
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            <div class="signatures">
+
+                <div>
+
+                    <p>Prepared by:</p>
+
+                    <input
+                        type="text"
+                        placeholder="Laboratory Custodian">
+
+                    <small>
+                        Laboratory Custodian
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <p>Signature of Group Leader:</p>
+
+                    <input
+                        type="text"
+                        placeholder="Group Leader">
+
+                </div>
+
+            </div>
+
+
+            <button type="submit">
+                Submit Report
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================= REQUISITION FORM ================= -->
+
+<div id="requisitionForm" class="modal">
+
+    <div class="modal-content form-container">
+
+        <span
+            class="close"
+            onclick="closeForm('requisitionForm')">
+            &times;
+        </span>
+
+
+<div class="form-header">
+
+    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+         class="form-logo"
+         alt="City College of Angeles Logo">
+
+
+            <h2>CITY COLLEGE OF ANGELES</h2>
+
+            <h2>
+                Institute of Education, Arts and Sciences
+            </h2>
+
+            <h3>SCIENCE LABORATORY</h3>
+
+            <h4>REQUISITION FORM</h4>
+
+        </div>
+
+
+        <form>
+
+            <!-- Top Information -->
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label>Course/Section:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter course and section">
+
+                </div>
+
+
+                <div class="col">
+
+                    <label>Experiment No.:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter experiment number">
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label>Group No.:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter group number">
+
+                </div>
+
+
+                <div class="col">
+
+                    <label>Title:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter experiment title">
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label>Group Leader & Student No.:</label>
+
+                    <input
+                        type="text"
+                        placeholder="Enter group leader and student number">
+
+                </div>
+
+
+                <div class="col">
+
+                    <label>Date Borrowed:</label>
+
+                    <input type="date">
+
+                </div>
+
+            </div>
+
+
+            <!-- Members -->
+
+            <div class="col">
+
+                <label>
+                    Member Name & Student No.:
+                </label>
+
+            </div>
+
+
+            <div class="members">
+
+                <input type="text" placeholder="1. Name & Student No.">
+                <input type="text" placeholder="2. Name & Student No.">
+                <input type="text" placeholder="3. Name & Student No.">
+                <input type="text" placeholder="4. Name & Student No.">
+                <input type="text" placeholder="5. Name & Student No.">
+                <input type="text" placeholder="6. Name & Student No.">
+
+            </div>
+
+
+            <!-- Requisition Table -->
+
+            <table border="1" width="100%" cellspacing="0" cellpadding="5">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Quantity</th>
+
+                        <th>
+                            Instruments / Apparatus / Materials
+                        </th>
+
+                        <th>Description</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                   
+
+            </table>
+
+
+            <!-- Bottom Information -->
+
+            <div class="col">
+
+                <label>Noted by:</label>
+
+                <input
+                    type="text"
+                    placeholder="Instructor Name">
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Received by:</label>
+
+                <input
+                    type="text"
+                    placeholder="Student Name">
+
+            </div>
+
+
+            <div class="col">
+
+                <label>Issued by:</label>
+
+                <input
+                    type="text"
+                    placeholder="Laboratory Assistant Name">
+
+            </div>
+
+
+            <button type="submit">
+                Submit
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+
+
+<!--Modify Items*/-->
+<div id="modifyForm" class="modal">
+
+    <div class="modal-content large-form">
+
+        <span class="close" onclick="closeForm('modifyForm')">&times;</span>
+
+        <div class="form-header">
+
+
+            <h2>CITY COLLEGE OF ANGELES</h2>
+
+            <h2>
+                
+                Institute of Education, Arts and Sciences
+            </h2>
+
+            <h3>SCIENCE LABORATORY</h3>
+
+            <h4>BORROWER'S FORM</h4>
+
+        </div>
+
+        
+
+
+        <div class="col">
+            
+            <label>Name: <span id="Type"></span></label>
+            <label>Category: <span id="Category"></span></label>
+            <label>Class: <span id="Class"></span></label>
+
+            <b>Available (by Codes):</b>
+            <div id="AvailableCodes"></div><br>
+            <b>Borrowed (by Codes):</b>
+            <div id="BorrowedCodes"></div><br>
+            <b>Others (by Codes):</b>
+            <div id="OtherCodes"></div><br>
+
+
+            
+
+        </div>
+
+    </div>
+
+</div>
+<!--Create account-->
+
+        <div id="createAccount" class="modal">
+
+            <div class="modal-content large-form">
+
+                <span class="close" onclick="closeForm('createAccount')">
+                    &times;
+                </span>
+
+                <div class="form-header">
+
+                    <h2>
+                        CITY COLLEGE OF ANGELES
+                    </h2>
+
+                    <h2>
+                        Angeles City
+                    </h2>
+
+                    <h3>
+                        SCIENCE LABORATORY
+                    </h3>
+
+                    <h4>
+                        BORROWER'S FORM
+                    </h4>
+
+                </div>
+
+                <div class="col">
+                    <label>
+                        Name:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="createName"
+                        name="createName">
+                </div>
+
+        <div class="col"> 
+            <label>Password:</label> 
+            <input 
+                type="Password" 
+                id="createPassword"
+                minlength="8"
+                title="Password must be at least 8 characters, contain one capital letter, and contain one special character."
+            >
+        </div>
+         <button
+                        class="confirm-btn"
+                        onclick="confirmCreate()"
+                        id="confirmCreate"
+                        style="display:block;">
+                        Confirm Create
+                    </button>
+                </div>
+
+                   
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!--Manage account-->
+
+         <div id="manageAccount" class="modal">
+    <div class="modal-content large-form">
+        <span class="close" onclick="closeForm('manageAccount')">&times;</span>
+
+        <div class="form-header">
+            <h2>CITY COLLEGE OF ANGELES</h2>
+            <h2>Angeles City</h2>
+            <h3>SCIENCE LABORATORY</h3>
+            <h4>BORROWER'S FORM</h4>
+        </div>
+
+        <table class="account-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="accountTableBody">
+                <!-- java skrep -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+        <!-- User Details -->
+<div id="manageUserDetails" class="modal">
+    <div class="modal-content large-form">
+        <span class="close" onclick="closeForm('manageUserDetails')">&times;</span>
+
+        <h2>ACCOUNT MANAGEMENT</h2>
+
+        <div class="col">
+            <label>User ID:</label>
+            <input type="text" id="userID" readonly>
+        </div>
+
+        <div class="col">
+            <label>Name:</label>
+            <input type="text" id="userName">
+        </div>
+
+        <div class="col"> 
+            <label>Password:</label> 
+            <input 
+                type="password" 
+                id="userPassword"
+                minlength="8"
+                pattern="(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}"
+                title="Password must be at least 8 characters, contain one capital letter, and contain one special character."
+                placeholder = "Leave empty to keep password unchanged"
+                >
+        </div>
+
+        <div class="col">
+    <label>Status:</label>
+    <select id="userStatus">
+        <option value="Admin">Admin</option>
+        <option value="superAdmin">superAdmin</option>
+    </select>
+</div>
+
+        <button onclick="saveUserChanges()">Save Changes</button>
+        <button onclick="deleteUser()">Delete User</button>
+
+    </div>
+</div>
+
+
+
+
+    </div>
+
+</div>
+
+<!--- fast check id  -->
+<!--check id-->
+        <div id="checkID" class="modal">
+
+            <div class="modal-content large-form">
+
+                <span class="close" onclick="closeForm('checkID')">
+                    &times;
+                </span>
+
+                <div class="form-header">
+
+                    <h2>
+                        CITY COLLEGE OF ANGELES
+                    </h2>
+
+                    <h2>
+                        Angeles City
+                    </h2>
+
+                    <h3>
+                        SCIENCE LABORATORY
+                    </h3>
+
+                    <h4>
+                        BORROWER'S FORM
+                    </h4>
+
+                </div>
+
+                <div class="col">
+                    <label>
+                        Student ID:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="studentID"
+                        name="studentID">
+                        <button
+                        class="confirm-btn"
+                        onclick="checkID()"
+                        id="checkIDbtn"
+                        style="display:block;">
+                        Next
+                    </button>
+                </div>
+               
+                </div>
+
+                    
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
