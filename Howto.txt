@@ -6,3 +6,7 @@ python -m pip install -r requirements.txt
 
 powershell: 
 .\venv\Scripts\Activate.ps1
+
+git add .
+git commit -m "Save current project changes"
+git pull --no-rebase origin main
