@@ -3315,3 +3315,248 @@ table td input {
         width: 100%;
     }
 }
+
+
+/*NEW TEsT*/
+/* =========================================
+    Online Forms
+   ========================================= */
+
+.main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+
+    padding: 28px 32px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   WHITE TABLE BOX
+   ========================================= */
+
+.table-container {
+    width: 100%;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    /* Space inside the white box */
+    padding: 30px 28px 35px 28px;
+
+    margin: 0 0 30px 0;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   TABLE TITLE
+   ========================================= */
+
+.table-title {
+    text-align: center;
+
+    font-size: 26px;
+    font-weight: 700;
+
+    color: #2f7038;
+
+    margin: 0 0 30px 0;
+
+    padding: 0;
+}
+
+
+/* =========================================
+   TABLE WRAPPER
+   ========================================= */
+
+.table-wrapper {
+    width: 100%;
+
+    /* Creates space between table and white box */
+    padding: 0;
+
+    margin: 0;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   TABLE
+   ========================================= */
+
+.records-table {
+    width: 100%;
+
+    min-width: 1100px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    margin: 0;
+
+    font-size: 13px;
+
+    background: #ffffff;
+}
+
+
+/* =========================================
+   RESERVATION FORM
+   ========================================= */
+
+.table-container:nth-child(1) .records-table {
+    min-width: 1150px;
+}
+
+
+/* =========================================
+   BREAKAGE FORM
+   ========================================= */
+
+.table-container:nth-child(2) .records-table {
+    min-width: 1400px;
+}
+
+
+/* =========================================
+   REQUISITION FORM
+   ========================================= */
+
+.table-container:nth-child(3) .records-table {
+    min-width: 1500px;
+}
+
+
+/* =========================================
+   TABLE HEADER
+   ========================================= */
+
+.records-table thead th {
+    background: #2f7038;
+
+    color: #ffffff;
+
+    font-weight: 600;
+
+    text-align: center;
+    vertical-align: middle;
+
+    padding: 15px 12px;
+
+    border-right: 1px solid #d2e2d4;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   TABLE BODY
+   ========================================= */
+
+.records-table tbody td {
+    text-align: center;
+    vertical-align: middle;
+
+    padding: 15px 12px;
+
+    color: #4a4a4a;
+
+    background: #fbfdfb;
+
+    border-right: 1px solid #d5e1d7;
+    border-bottom: 1px solid #d5e1d7;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   ROUNDED TABLE CORNERS
+   ========================================= */
+
+.records-table thead th:first-child {
+    border-top-left-radius: 5px;
+}
+
+.records-table thead th:last-child {
+    border-top-right-radius: 5px;
+    border-right: none;
+}
+
+
+/* =========================================
+   LAST COLUMN
+   ========================================= */
+
+.records-table tbody td:last-child {
+    border-right: none;
+}
+
+
+/* =========================================
+   HOVER EFFECT
+   ========================================= */
+
+.records-table tbody tr:hover td {
+    background: #f0f7f1;
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+.table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #eeeeee;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #999999;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #777777;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 900px) {
+
+    .main {
+        margin-left: 220px;
+
+        width: calc(100% - 220px);
+
+        padding: 20px 18px;
+    }
+
+    .table-container {
+        padding: 25px 20px 30px 20px;
+    }
+
+    .table-title {
+        font-size: 23px;
+    }
+}
