@@ -7,6 +7,9 @@ let scannedItems = [];
 let returnCodes = [];
 let returnScanner;
 let returnItems = [];
+const promise = new Promise((resolve, reject) => {
+    resolve("Done!");
+});
 
 
 const curruser = "{{ session['name'] }}";
@@ -122,7 +125,7 @@ function startScanner() {
 
     });
 }
-function stopScanner() {
+function stopScanner(afterStop) {
 
     if (codes.length === 0) {
 
@@ -141,7 +144,7 @@ function stopScanner() {
 
                 console.log("Scanner stopped");
 
-                qrscanform();
+                afterStop(codes);
 
             })
             .catch(error => {
@@ -152,13 +155,13 @@ function stopScanner() {
 
     } else {
 
-        qrscanform();
+        afterStop(codes);
 
     }
 
 }
 
-function qrscanform(){
+function qrscanform(codes){
 
     let studentid = document.getElementById("StudentID").value;
     let name = document.getElementById("Name").value;
@@ -1162,3 +1165,15 @@ function searchInventory() {
     });
 
 }
+/* MASK EMAIL */
+
+function maskEmail(email){
+  let newemail;
+  let last = email.slice(email.indexOf("@") - 1)
+  let middle = "*".repeat(email.slice(1, email.indexOf("@") - 1).length)
+  let first = email.slice(0 , 1)
+  return newemail = first + middle + last
+
+}
+
+/*  RESERVATION */

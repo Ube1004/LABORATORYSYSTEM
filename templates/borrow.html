@@ -791,6 +791,7 @@
 
             <thead>
                 <tr>
+                
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
@@ -931,20 +932,20 @@
 
 
 
-<div class="col">
+        <div class="col">
 
-    <label>Contact No.:</label>
+            <label>Contact No.:</label>
 
-    <input
-        type="tel"
-        id="Contact"
-        name="Contact"
-        placeholder="09XXXXXXXXX"
-        pattern="09[0-9]{9}"
-        maxlength="11"
-        required>
+            <input
+                type="tel"
+                id="Contact"
+                name="Contact"
+                placeholder="09XXXXXXXXX"
+                pattern="09[0-9]{9}"
+                maxlength="11"
+                required>
 
-</div>
+        </div>
 
 
 
@@ -1008,20 +1009,20 @@
 
         <div class="button-group">
 
-    <button
-        type="button"
-        class="scan-btn"
-        onclick="startScanner()">
-        Scan Items
-    </button>
-    <button
-        type="button"
-        class="scan-btn"
-        onclick="stopScanner()">
-        Stop Scanner
-    </button>
+            <button
+                type="button"
+                class="scan-btn"
+                onclick="startScanner()">
+                Scan Items
+            </button>
+            <button
+                type="button"
+                class="scan-btn"
+                onclick="stopScanner(qrscanform)">
+                Stop Scanner
+            </button>
 
-</div>
+        </div>
 
 <div id="reader"></div>
 
@@ -1054,7 +1055,7 @@
 
         <h3>Scan QR Code</h3>
 
-        <div id="reader"></div>
+        
 
     </div>
 
