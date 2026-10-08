@@ -8,58 +8,52 @@ let returnCodes = [];
 let returnScanner;
 let returnItems = [];
 const promise = new Promise((resolve, reject) => {
-    resolve("Done!");
+  resolve("Done!");
 });
-
 
 const curruser = "{{ session['name'] }}";
 
-function login(){
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
+function login() {
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
 
-    if (!username || !password) {
-        alert("Please enter both username and password.");
-        return;
-    }
+  if (!username || !password) {
+    alert("Please enter both username and password.");
+    return;
+  }
 
-    fetch('/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Login Success');
-            window.location.href = '/dashboard';
-        } else {
-            alert('Invalid credentials');
-        }
-
-
+  fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Login Success");
+        window.location.href = "/dashboard";
+      } else {
+        alert("Invalid credentials");
+      }
     });
-
 }
 
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        login();
-    }
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    login();
+  }
 });
 
-function gotologin(){
-    window.location.href = "/gotologin";
+function gotologin() {
+  window.location.href = "/gotologin";
 }
 
+function qrscan() {
+  fetch("/qrscan");
 
-
-function qrscan(){
-    fetch('/qrscan')
-    
-    /*.then(data => {
+  /*.then(data => {
         
      let rows = "";
 
@@ -90,534 +84,437 @@ function qrscan(){
 */
 }
 
-
 // QR SCAN
 function startScanner() {
+  scanner = new Html5Qrcode("reader");
 
-    scanner = new Html5Qrcode("reader");
+  scanner
+    .start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250,
+      },
+      (decodedText) => {
+        console.log("QR CODE:", decodedText);
 
-    scanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: 250
-        },
-        (decodedText) => {
+        if (!codes.includes(decodedText)) {
+          codes.push(decodedText);
 
-            console.log("QR CODE:", decodedText);
-
-            if (!codes.includes(decodedText)) {
-
-                codes.push(decodedText);
-
-                console.log("CODES:", codes);
-
-            }
-
-        },
-        (errorMessage) => {
-            // Ignore failed scans
+          console.log("CODES:", codes);
         }
+      },
+      (errorMessage) => {
+        // Ignore failed scans
+      },
     )
-    .catch(error => {
-
-        console.log("Camera error:", error);
-
+    .catch((error) => {
+      console.log("Camera error:", error);
     });
 }
 function stopScanner(afterStop) {
+  if (codes.length === 0) {
+    alert("Please scan at least one item first.");
+    return;
+  }
 
-    if (codes.length === 0) {
+  if (scanner) {
+    scanner
+      .stop()
+      .then(() => {
+        scanner.clear();
+        scanner = null;
 
-        alert("Please scan at least one item first.");
-        return;
-
-    }
-
-    if (scanner) {
-
-        scanner.stop()
-            .then(() => {
-
-                scanner.clear();
-                scanner = null;
-
-                console.log("Scanner stopped");
-
-                afterStop(codes);
-
-            })
-            .catch(error => {
-
-                console.log("Error stopping scanner:", error);
-
-            });
-
-    } else {
+        console.log("Scanner stopped");
 
         afterStop(codes);
-
-    }
-
+      })
+      .catch((error) => {
+        console.log("Error stopping scanner:", error);
+      });
+  } else {
+    afterStop(codes);
+  }
 }
 
-function qrscanform(codes){
+function qrscanform(codes) {
+  let studentid = document.getElementById("StudentID").value;
+  let name = document.getElementById("Name").value;
+  let email = document.getElementById("Email").value;
+  let institute = document.getElementById("Institute").value;
+  let contact = document.getElementById("Contact").value;
+  let dateB = document.getElementById("dateBorrowed").value;
+  let dateR = document.getElementById("dateReturn").value;
+  let approvedBy = document.getElementById("approvedBy").value;
+  let remarks = document.getElementById("remarks").value;
 
-    let studentid = document.getElementById("StudentID").value;
-    let name = document.getElementById("Name").value;
-    let email = document.getElementById("Email").value;
-    let institute = document.getElementById("Institute").value;
-    let contact = document.getElementById("Contact").value;
-    let dateB = document.getElementById("dateBorrowed").value;
-    let dateR = document.getElementById("dateReturn").value;
-    let approvedBy = document.getElementById("approvedBy").value;
-    let remarks = document.getElementById("remarks").value;
+  if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
+    document.getElementById("mydiv").showPopover();
+    return;
+  }
 
-        if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
-            document.getElementById("mydiv").showPopover();
-            return;
-    }
+  fetch("/qrscan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      codes: codes,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      let html = document.getElementById("itemBox").innerHTML;
 
-    fetch('/qrscan', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            codes: codes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        let html = document.getElementById("itemBox").innerHTML;
-
-        data.items.forEach(item => {
-
-            html += `
+      data.items.forEach((item) => {
+        html += `
                 <div class="item">
                     ${item.Type} with code ${item.Code}
                 </div>
             `;
+      });
 
-        });
+      document.getElementById("itemBox").innerHTML = html;
 
-        document.getElementById("itemBox").innerHTML = html;
+      // CREATE BORROW DATA
+      borrowData = {
+        name: name,
+        studentid: studentid,
+        email: email,
+        institute: institute,
+        contact: contact,
+        dateB: dateB,
+        dateR: dateR,
+        items: data.items,
+        approvedBy: approvedBy,
+        remarks: remarks,
+      };
 
-        // CREATE BORROW DATA
-        borrowData = {
-            name: name,
-            studentid: studentid,
-            email: email,
-            institute: institute,
-            contact: contact,
-            dateB: dateB,
-            dateR: dateR,
-            items: data.items,
-            approvedBy: approvedBy,
-            remarks: remarks
-        };
+      document.getElementById("confirmBtn").style.display = "block";
 
-        document.getElementById("confirmBtn").style.display = "block";
-
-        if (data.missing && data.missing.length > 0) {
-            alert("Missing/Not on Database: " + data.missing.join(", "));
-        }
-
+      if (data.missing && data.missing.length > 0) {
+        alert("Missing/Not on Database: " + data.missing.join(", "));
+      }
     });
 }
-function confirmborrow(borrowData){
+function confirmborrow(borrowData) {
+  if (!borrowData) {
+    alert("Must Insert Datas first");
+  } else {
+    fetch("/confirmborrow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(borrowData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
 
-    if (!borrowData){
-        alert("Must Insert Datas first")
-        
+        alert("Data Successfully inserted");
+        returning();
+      });
+  }
+}
 
-
-    }
-    else {
-    fetch('/confirmborrow' ,{ method: 'POST',headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(borrowData) })
-        .then(res => res.json())
-        .then(data => { console.log(data);
-        
-
-        alert("Data Successfully inserted")
-        returning()
-        
-    });
-        
-
-
-}}
-
-
-
-
-
-
-
-
-function test(){
-    let studentid = document.getElementById("StudentID").value;
-    let name = document.getElementById("Name").value;
-    let email = document.getElementById("Email").value;
-    let institute = document.getElementById("Institute").value;
-    let contact = document.getElementById("Contact").value;
-    let dateB = document.getElementById("dateBorrowed").value;
-    let dateR = document.getElementById("dateReturn").value;
-    fetch('/test')
-    .then(res => res.json())
-    .then(data => {
-
-        // show data
-        alert(JSON.stringify(data) + studentid + name + email + institute + contact + dateB + dateR);
-        showCButton();
+function test() {
+  let studentid = document.getElementById("StudentID").value;
+  let name = document.getElementById("Name").value;
+  let email = document.getElementById("Email").value;
+  let institute = document.getElementById("Institute").value;
+  let contact = document.getElementById("Contact").value;
+  let dateB = document.getElementById("dateBorrowed").value;
+  let dateR = document.getElementById("dateReturn").value;
+  fetch("/test")
+    .then((res) => res.json())
+    .then((data) => {
+      // show data
+      alert(
+        JSON.stringify(data) +
+          studentid +
+          name +
+          email +
+          institute +
+          contact +
+          dateB +
+          dateR,
+      );
+      showCButton();
     });
 }
 function closeForm(formId) {
-    document.getElementById(formId).style.display = "none";
+  document.getElementById(formId).style.display = "none";
 }
 
 function openForm(formId, itemId) {
-    document.getElementById(formId).style.display = "block";
+  document.getElementById(formId).style.display = "block";
 
-    if (itemId){
-        fetch('/getItem' ,{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ itemId : itemId })})
-        .then(res => res.json())
-        .then(data => {
-
+  if (itemId) {
+    fetch("/getItem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: itemId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
         let Type = data.Type;
-                
+
         document.getElementById("Type").textContent = data.item.Type;
         document.getElementById("Category").textContent = data.item.Category;
         document.getElementById("Class").textContent = data.item.Class;
         let codes = "";
         let Bcodes = "";
 
-        data.available.forEach(item => {
-            codes += item.Code + ", ";
+        data.available.forEach((item) => {
+          codes += item.Code + ", ";
         });
 
         document.getElementById("AvailableCodes").innerHTML = codes;
 
-        
-        
-
-        data.borrowed.forEach(item => {
-            Bcodes += item.Code + ", ";
+        data.borrowed.forEach((item) => {
+          Bcodes += item.Code + ", ";
         });
 
         document.getElementById("BorrowedCodes").innerHTML = Bcodes;
 
-
-
-
         document.getElementById(formId).style.display = "block";
-        
-});
-}
-else{
-document.getElementById(formId).style.display = "block";
-}
-
+      });
+  } else {
+    document.getElementById(formId).style.display = "block";
+  }
 }
 
-
+/* DISPLAY BORROW FORM */
 document.addEventListener("DOMContentLoaded", function () {
-    let today = new Date().toISOString().split('T')[0];
-    let returnDateObj = new Date(today);
-    returnDateObj.setDate(returnDateObj.getDate() + 7)
-    document.getElementById("dateBorrowed").value = today;
-    document.getElementById("dateReturn").value = returnDateObj.toISOString().split('T')[0];
+  let now = new Date();
+  let today = now.toISOString().split("T")[0];
+  let returnDateObj = new Date(today);
+  let currentTime = now.toTimeString().slice(0, 5);
+  returnDateObj.setDate(returnDateObj.getDate() + 7);
+  document.getElementById("dateBorrowed").value = today;
+  document.getElementById("dateReturn").value = today;
+  document.getElementById("dateTimeBorrowed").value = currentTime;
 });
 
-function qrmaker(){
-    fetch('/qrmaker' ,{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ category: category, type: type })
-        })
-    }
-function test1(){
-    alert("Hello world")
-
+function qrmaker() {
+  fetch("/qrmaker", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: category, type: type }),
+  });
+}
+function test1() {
+  alert("Hello world");
 }
 
-function returning(){
-    
-    window.location.href = "/returning";
-
+function returning() {
+  window.location.href = "/returning";
 }
 
-function borrowin(){
-    let name ="";
-
-
+function borrowin() {
+  let name = "";
 }
 
 //variable for borrowing
-function borrowform(){
-        let name = document.getElementById("Name").value;
-        let email = document.getElementById("Email").value;
-        let StudentID = document.getElementById("StudentID").value;
-        let Institute = document.getElementById("Institute").value;
-        let Conctact = document.getElementById("Contact").value;
-        let dateB = document.getElementById("dateBorrowed").value;
-        let dateR = document.getElementById("dateReturn").value;
-        
-        if (!name || !email || !StudentID || !Institute || !Conctact || !dateB || !dateR) {
-            alert("Please fill in all fields.");
-            
-            return;
-        }
+function borrowform() {
+  let name = document.getElementById("Name").value;
+  let email = document.getElementById("Email").value;
+  let StudentID = document.getElementById("StudentID").value;
+  let Institute = document.getElementById("Institute").value;
+  let Conctact = document.getElementById("Contact").value;
+  let dateB = document.getElementById("dateBorrowed").value;
+  let dateR = document.getElementById("dateReturn").value;
+  let timeB = document.getElementById("dateTimeBorrowed").value;
+  let timeR = document.getElementById("dateTimeReturn").value;
 
-
-
-
-    
-
+  if (
+    !name ||
+    !email ||
+    !StudentID ||
+    !timeB ||
+    !timeR ||
+    !Institute ||
+    !Conctact ||
+    !dateB ||
+    !dateR
+  ) {
+    alert("Please fill in all fields.");
+    return;
+  }
 }
 
+function ItemReturning(items) {
+  let html = "";
 
-/*function confirmReturn(){
-
-    fetch('/updatereturn', {
-
-        method: 'POST',
-
-        headers: {
-            'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-            items: returningItems
-        })
-
-    })
-
-    .then(res => res.json())
-
-    .then(data => {
-
-        alert(data.message);
-
-    });
-
-}*/
-
-function ItemReturning(items){
-
-    let html = "";
-
-    items.forEach(item => {
-
-        html += `
+  items.forEach((item) => {
+    html += `
             <div class="item">
                 ${item.Type} borrowed by ${item.BorrowerName}
             </div>
         `;
+  });
 
-    });
-
-    document.getElementById("itemBox").innerHTML = html;
-
+  document.getElementById("itemBox").innerHTML = html;
 }
 
 function manualReturn() {
-    let studentId = document.getElementById("studentId").value;
-    let code = document.getElementById("code").value;
+  let studentId = document.getElementById("studentId").value;
+  let code = document.getElementById("code").value;
 
-    fetch('/manualReturn', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            studentId: studentId,
-            code: code
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
+  fetch("/manualReturn", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      studentId: studentId,
+      code: code,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      alert(data.message);
 
-        if (data.item) {
-            document.getElementById("itemBox").innerHTML =
-                `<p>${data.item}</p>`;
-        }
+      if (data.item) {
+        document.getElementById("itemBox").innerHTML = `<p>${data.item}</p>`;
+      }
     })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("Request failed.");
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Request failed.");
     });
 }
-
 
 //return scan
 function startReturnScanner() {
+  returnScanner = new Html5Qrcode("returnReader");
 
-    returnScanner = new Html5Qrcode("returnReader");
+  returnScanner
+    .start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250,
+      },
+      (decodedText) => {
+        console.log("RETURN QR:", decodedText);
 
-    returnScanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: 250
-        },
-        (decodedText) => {
+        if (!returnCodes.includes(decodedText)) {
+          returnCodes.push(decodedText);
 
-            console.log("RETURN QR:", decodedText);
-
-            if (!returnCodes.includes(decodedText)) {
-
-                returnCodes.push(decodedText);
-
-                console.log("RETURN CODES:", returnCodes);
-
-            }
-
-        },
-        (errorMessage) => {
-            // Ignore failed scans
+          console.log("RETURN CODES:", returnCodes);
         }
+      },
+      (errorMessage) => {
+        // Ignore failed scans
+      },
     )
-    .catch(error => {
-
-        console.log("Camera error:", error);
-
+    .catch((error) => {
+      console.log("Camera error:", error);
     });
 }
-
-
-
 
 function stopReturnScanner() {
+  if (returnCodes.length === 0) {
+    alert("Please scan at least one item first.");
+    return;
+  }
 
-    if (returnCodes.length === 0) {
+  if (returnScanner) {
+    returnScanner
+      .stop()
+      .then(() => {
+        returnScanner.clear();
+        returnScanner = null;
 
-        alert("Please scan at least one item first.");
-        return;
-
-    }
-
-    if (returnScanner) {
-
-        returnScanner.stop()
-            .then(() => {
-
-                returnScanner.clear();
-                returnScanner = null;
-
-                console.log("Return scanner stopped");
-
-                confirmreturn();
-
-            })
-            .catch(error => {
-
-                console.log("Error stopping scanner:", error);
-
-            });
-
-    } else {
+        console.log("Return scanner stopped");
 
         confirmreturn();
-
-    }
+      })
+      .catch((error) => {
+        console.log("Error stopping scanner:", error);
+      });
+  } else {
+    confirmreturn();
+  }
 }
 function updateReturn() {
+  console.log("SENDING RETURN:", returnItems);
 
-    console.log("SENDING RETURN:", returnItems);
+  fetch("/updatereturn", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      items: returnItems,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
 
-    fetch('/updatereturn', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            items: returnItems
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        console.log(data);
-
-        alert(data.message);
-        location.reload();
-
+      alert(data.message);
+      location.reload();
     });
-
 }
 
-
 function confirmreturn() {
+  fetch("/confirmreturn", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      codes: returnCodes,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("RETURN ITEMS:", data.items);
 
-    fetch('/confirmreturn', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            codes: returnCodes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
+      returnItems = data.items;
 
-        console.log("RETURN ITEMS:", data.items);
+      let html = "";
 
-        returnItems = data.items;
-
-        let html = "";
-
-        data.items.forEach(item => {
-
-            html += `
+      data.items.forEach((item) => {
+        html += `
                 <div class="item">
                     ${item.Type} with code ${item.Code}
                     <br>
                     Borrowed by: ${item.BorrowerName}
                 </div>
             `;
+      });
 
-        });
-
-        document.getElementById("returnItemBox").innerHTML = html;
-
+      document.getElementById("returnItemBox").innerHTML = html;
     });
-
 }
 
-
-
 //item box for borrowing
-function loadItems(){
-    fetch('/items')
-    .then(res => res.json())
-    .then(data => {
+function loadItems() {
+  fetch("/items")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
 
-        let html = "";
-
-        data.items.forEach(item => {
-    html += `
+      data.items.forEach((item) => {
+        html += `
         <div class="item">
            ${item.Type} with code ${item.Code}
         </div>
     `;
-})
-})
-};
-
-
+      });
+    });
+}
 
 function showCButton() {
-    document.getElementById("confirmBtn").style.display = "block";
+  document.getElementById("confirmBtn").style.display = "block";
 }
 
 function modifyRecord(id) {
-    window.location.href = "/modify/" + id;
+  window.location.href = "/modify/" + id;
 }
 
 const video = document.getElementById("camera");
@@ -630,58 +527,52 @@ let imageData = "";
 preview.src = imageData;
 
 // Open camera
-navigator.mediaDevices.getUserMedia({
-    video: true
-}).then(stream => {
+navigator.mediaDevices
+  .getUserMedia({
+    video: true,
+  })
+  .then((stream) => {
     video.srcObject = stream;
-});
+  });
 
 function takePhoto() {
+  const ctx = canvas.getContext("2d");
 
-    const ctx = canvas.getContext("2d");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
 
-    ctx.drawImage(video, 0, 0);
+  const image = canvas.toDataURL("image/jpeg");
 
-    const image = canvas.toDataURL("image/jpeg");
+  photos.push(image);
 
-    photos.push(image);
-
-    renderPhotos();
+  renderPhotos();
 }
 // Upload photo
-function uploadPhotos(){
+function uploadPhotos() {
+  fetch("/savephotos", {
+    method: "POST",
 
-    fetch("/savephotos",{
+    headers: {
+      "Content-Type": "application/json",
+    },
 
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-            
-            images: photos
-        })
-
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        alert(data.message);
+    body: JSON.stringify({
+      images: photos,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      alert(data.message);
     });
-
 }
 
 function renderPhotos() {
+  previewContainer.innerHTML = "";
 
-    previewContainer.innerHTML = "";
-
-    photos.forEach((photo, index) => {
-
-        previewContainer.innerHTML += `
+  photos.forEach((photo, index) => {
+    previewContainer.innerHTML += `
             <div class="photo-card">
                 <img src="${photo}" width="150">
 
@@ -692,246 +583,211 @@ function renderPhotos() {
                 </button>
             </div>
         `;
-
-    });
-
+  });
 }
 
 function removePhoto(index) {
+  photos.splice(index, 1);
 
-    photos.splice(index, 1);
-
-    renderPhotos();
-
+  renderPhotos();
 }
 
+function confirmCreate() {
+  let name = document.getElementById("createName").value;
+  let password = document.getElementById("createPassword").value;
 
-function confirmCreate(){
+  if (!name || !password) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-    let name = document.getElementById("createName").value;
-    let password = document.getElementById("createPassword").value;
+  if (password.length < 8) {
+    alert("Password must be at least 8 characters.");
+    return;
+  }
 
-    if (!name || !password) {
-        alert("Please fill in all fields.");
-        return;
-    }
+  if (!/[A-Z]/.test(password)) {
+    alert("Password must contain a capital letter.");
+    return;
+  }
 
-
-    if (password.length < 8) {
-        alert("Password must be at least 8 characters.");
-        return;
-    }
-
-    if (!/[A-Z]/.test(password)) {
-        alert("Password must contain a capital letter.");
-        return;
-    }
-
-    if (!/[^A-Za-z0-9]/.test(password)) {
-        alert("Password must contain a special character.");
-        return;
-    }
-    fetch('/createUser', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if (data.success) {
-            alert('User created successfully');
-            window.location.href = '/dashboard';
-        }})
-    }
-
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    alert("Password must contain a special character.");
+    return;
+  }
+  fetch("/createUser", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, password }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        alert("User created successfully");
+        window.location.href = "/dashboard";
+      }
+    });
+}
 
 function logout() {
-    window.location.href = '/logout';
+  window.location.href = "/logout";
 }
 
-
-
 function checkID() {
+  let studentID = document.getElementById("studentID").value;
 
-    let studentID = document.getElementById("studentID").value;
+  if (studentID === "") {
+    alert("Please enter Student ID.");
+    return;
+  }
 
-    if (studentID === "") {
-        alert("Please enter Student ID.");
-        return;
-    }
+  fetch(`/get_student/${studentID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      document.getElementById("checkID").style.display = "none";
+      document.getElementById("borrowForm").style.display = "block";
 
-    fetch(`/get_student/${studentID}`)
-        .then(response => response.json())
-        .then(data => {
+      document.getElementById("StudentID").value = studentID;
 
-            document.getElementById("checkID").style.display = "none";
-            document.getElementById("borrowForm").style.display = "block";
+      if (data.success) {
+        document.getElementById("studentID").value = data.studentID;
+        document.getElementById("Name").value = data.name;
+        document.getElementById("Email").value = data.email;
+        document.getElementById("Institute").value = data.department;
+        document.getElementById("Contact").value = data.contact;
+        document.getElementById("approvedBy").value = data.approvedBy;
+      } else {
+        document.getElementById("Name").value = "";
+        document.getElementById("Email").value = "";
+        document.getElementById("Institute").value = "";
+        document.getElementById("Contact").value = "";
+      }
+    })
 
-            document.getElementById("StudentID").value = studentID;
-
-            if (data.success) {
-
-                
-                document.getElementById("studentID").value = data.studentID;
-                document.getElementById("Name").value = data.name;
-                document.getElementById("Email").value = data.email;
-                document.getElementById("Institute").value = data.department;
-                document.getElementById("Contact").value = data.contact;
-                document.getElementById("approvedBy").value = data.approvedBy;
-
-            } else {
-
-                
-                document.getElementById("Name").value = "";
-                document.getElementById("Email").value = "";
-                document.getElementById("Institute").value = "";
-                document.getElementById("Contact").value = "";
-
-            }
-           
-
-        })
-
-
-
-        .catch(error => {
-            console.error("Error:", error);
-        });
-
-
-
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
 //manage account
 
-
 function manageAccount() {
-    fetch('/manageAccount')
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                alert("Failed to load accounts.");
-                return;
-            }
+  fetch("/manageAccount")
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        alert("Failed to load accounts.");
+        return;
+      }
 
-            const tbody = document.getElementById("accountTableBody");
-            tbody.innerHTML = ""; 
+      const tbody = document.getElementById("accountTableBody");
+      tbody.innerHTML = "";
 
-            data.users.forEach(user => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
+      data.users.forEach((user) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
                     <td>${user.UserID}</td>
                     <td>${user.Name}</td>
                     <td>${user.Status}</td>
                     <td><button onclick="openUserDetails('${user.UserID}')">Manage</button></td>
                 `;
-                tbody.appendChild(row);
-            });
+        tbody.appendChild(row);
+      });
 
-            openForm("manageAccount");
-        })
-        .catch(error => console.error(error));
+      openForm("manageAccount");
+    })
+    .catch((error) => console.error(error));
 }
 
 function openUserDetails(userID) {
-    fetch(`/get_user/${userID}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById("userID").value = data.userID;
-                document.getElementById("userName").value = data.name;
-                
-                document.getElementById("userStatus").value = data.status;
+  fetch(`/get_user/${userID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        document.getElementById("userID").value = data.userID;
+        document.getElementById("userName").value = data.name;
 
-                openForm("manageUserDetails");
-            } else {
-                alert("User not found.");
-            }
-        })
-        .catch(error => console.error(error));
+        document.getElementById("userStatus").value = data.status;
+
+        openForm("manageUserDetails");
+      } else {
+        alert("User not found.");
+      }
+    })
+    .catch((error) => console.error(error));
 }
 
 function saveUserChanges() {
-    const payload = {
-        userID: document.getElementById("userID").value,
-        name: document.getElementById("userName").value,
-        password: document.getElementById("userPassword").value,
-        status: document.getElementById("userStatus").value
-    };
+  const payload = {
+    userID: document.getElementById("userID").value,
+    name: document.getElementById("userName").value,
+    password: document.getElementById("userPassword").value,
+    status: document.getElementById("userStatus").value,
+  };
 
-    let password = document.getElementById("userPassword").value;
+  let password = document.getElementById("userPassword").value;
 
-    if (password)
-    {
+  if (password) {
     if (password.length < 8) {
-        alert("Password must be at least 8 characters.");
-        return;
+      alert("Password must be at least 8 characters.");
+      return;
     }
 
     if (!/[A-Z]/.test(password)) {
-        alert("Password must contain a capital letter.");
-        return;
+      alert("Password must contain a capital letter.");
+      return;
     }
 
     if (!/[^A-Za-z0-9]/.test(password)) {
-        alert("Password must contain a special character.");
-        return;
-    }}
-    else{
-    fetch(`/update_user/${payload.userID}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("User updated.");
-                closeForm("manageUserDetails");
-                manageAccount();
-            } else {
-                alert("Update failed.");
-            }
-        })
-        .catch(error => console.error(error));
-}}
-
-
-
-function deleteUser() {
-
-    let userID = document.getElementById("userID").value;
-
-    let confirmation = confirm("Are you sure you want to delete this user?");
-
-    if (!confirmation) {
-        return;
+      alert("Password must contain a special character.");
+      return;
     }
-
-    fetch(`/deleteUser/${userID}`, {
-        method: "POST"
+  } else {
+    fetch(`/update_user/${payload.userID}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     })
-    .then(res => res.json())
-    .then(data => {
-
-        alert(data.message);
-
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            location.reload();
+          alert("User updated.");
+          closeForm("manageUserDetails");
+          manageAccount();
+        } else {
+          alert("Update failed.");
         }
-
-    })
-    .catch(error => {
-
-        console.log(error);
-
-    });
-
+      })
+      .catch((error) => console.error(error));
+  }
 }
 
+function deleteUser() {
+  let userID = document.getElementById("userID").value;
+
+  let confirmation = confirm("Are you sure you want to delete this user?");
+
+  if (!confirmation) {
+    return;
+  }
+
+  fetch(`/deleteUser/${userID}`, {
+    method: "POST",
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      alert(data.message);
+
+      if (data.success) {
+        location.reload();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 //analytics graph
 /* =========================================================
@@ -939,241 +795,170 @@ function deleteUser() {
    ========================================================= */
 
 function searchInventory() {
+  const searchInput = document
+    .getElementById("inventorySearch")
+    .value.toLowerCase()
+    .trim();
 
-    const searchInput = document
-        .getElementById("inventorySearch")
-        .value
-        .toLowerCase()
-        .trim();
+  const categories = document.querySelectorAll(".inventory-category");
 
-    const categories = document.querySelectorAll(
-        ".inventory-category"
-    );
+  let totalMatches = 0;
 
-    let totalMatches = 0;
-
-
-    /* =====================================================
+  /* =====================================================
        CHECK EVERY CATEGORY
        ===================================================== */
 
-    categories.forEach(function(category) {
+  categories.forEach(function (category) {
+    const rows = category.querySelectorAll(".inventory-table tbody tr");
 
-        const rows = category.querySelectorAll(
-            ".inventory-table tbody tr"
-        );
+    /*
+     * CHECK IF THE SEARCH TERM MATCHES
+     * THIS CATEGORY'S HEADER (e.g. "Toxic Chemicals").
+     * Emoji and other symbols are stripped out first
+     * so only the actual text is compared.
+     */
 
-        /*
-         * CHECK IF THE SEARCH TERM MATCHES
-         * THIS CATEGORY'S HEADER (e.g. "Toxic Chemicals").
-         * Emoji and other symbols are stripped out first
-         * so only the actual text is compared.
-         */
+    const headerElement = category.querySelector(".category-header h3");
 
-        const headerElement = category.querySelector(
-            ".category-header h3"
-        );
+    const categoryName = headerElement
+      ? headerElement.textContent
+          .replace(/[^\p{L}\p{N}\s]/gu, "")
+          .toLowerCase()
+          .trim()
+      : "";
 
-        const categoryName = headerElement
-            ? headerElement.textContent
-                .replace(/[^\p{L}\p{N}\s]/gu, "")
-                .toLowerCase()
-                .trim()
-            : "";
+    const categoryHeaderMatches =
+      searchInput !== "" && categoryName.includes(searchInput);
 
-        const categoryHeaderMatches =
-            searchInput !== "" &&
-            categoryName.includes(searchInput);
+    let categoryMatches = 0;
 
-        let categoryMatches = 0;
-
-
-        /* =================================================
+    /* =================================================
            CHECK EVERY ITEM
            ================================================= */
 
-        rows.forEach(function(row) {
+    rows.forEach(function (row) {
+      const itemName = row
+        .querySelector("td:first-child")
+        .textContent.toLowerCase()
+        .trim();
 
-            const itemName = row
-                .querySelector("td:first-child")
-                .textContent
-                .toLowerCase()
-                .trim();
+      /*
+       * SHOW THE ROW IF:
+       * - the item name matches, OR
+       * - the whole category header matches
+       *   (in which case every row in it counts).
+       */
 
-            /*
-             * SHOW THE ROW IF:
-             * - the item name matches, OR
-             * - the whole category header matches
-             *   (in which case every row in it counts).
-             */
+      if (itemName.includes(searchInput) || categoryHeaderMatches) {
+        row.style.display = "";
 
-            if (
-                itemName.includes(searchInput) ||
-                categoryHeaderMatches
-            ) {
+        categoryMatches++;
 
-                row.style.display = "";
+        totalMatches++;
+      } else {
+        row.style.display = "none";
+      }
+    });
 
-                categoryMatches++;
-
-                totalMatches++;
-
-            } else {
-
-                row.style.display = "none";
-
-            }
-
-        });
-
-
-        /* =================================================
+    /* =================================================
            HIDE CATEGORY IF NO ITEM MATCHES
            ================================================= */
 
-        if (categoryMatches === 0) {
+    if (categoryMatches === 0) {
+      category.style.display = "none";
+    } else {
+      category.style.display = "";
+    }
 
-            category.style.display = "none";
-
-        } else {
-
-            category.style.display = "";
-
-        }
-
-
-        /* =================================================
+    /* =================================================
            UPDATE CATEGORY COUNT
            ================================================= */
 
-        const countElement = category.querySelector(
-            ".category-visible-count"
-        );
+    const countElement = category.querySelector(".category-visible-count");
 
-        if (countElement) {
+    if (countElement) {
+      countElement.textContent = categoryMatches;
+    }
+  });
 
-            countElement.textContent = categoryMatches;
+  const noResult = document.getElementById("noInventoryResult");
 
-        }
+  const searchResult = document.getElementById("searchResult");
 
-    });
-
-
-    const noResult = document.getElementById(
-        "noInventoryResult"
-    );
-
-    const searchResult = document.getElementById(
-        "searchResult"
-    );
-
-
-    /* =====================================================
+  /* =====================================================
        EMPTY SEARCH
        ===================================================== */
 
-    if (searchInput === "") {
+  if (searchInput === "") {
+    categories.forEach(function (category) {
+      category.style.display = "";
 
-        categories.forEach(function(category) {
+      const rows = category.querySelectorAll(".inventory-table tbody tr");
 
-            category.style.display = "";
+      rows.forEach(function (row) {
+        row.style.display = "";
+      });
 
+      const countElement = category.querySelector(".category-visible-count");
 
-            const rows = category.querySelectorAll(
-                ".inventory-table tbody tr"
-            );
+      if (countElement) {
+        countElement.textContent = rows.length;
+      }
+    });
 
+    searchResult.innerHTML = "Showing all laboratory inventory items.";
 
-            rows.forEach(function(row) {
+    noResult.style.display = "none";
 
-                row.style.display = "";
+    return;
+  }
 
-            });
-
-
-            const countElement = category.querySelector(
-                ".category-visible-count"
-            );
-
-            if (countElement) {
-
-                countElement.textContent = rows.length;
-
-            }
-
-        });
-
-
-        searchResult.innerHTML =
-            "Showing all laboratory inventory items.";
-
-        noResult.style.display = "none";
-
-        return;
-    }
-
-
-    /* =====================================================
+  /* =====================================================
        DISPLAY SEARCH RESULTS
        ===================================================== */
 
-    if (totalMatches > 0) {
+  if (totalMatches > 0) {
+    searchResult.innerHTML =
+      "Found <strong>" +
+      totalMatches +
+      "</strong> matching item" +
+      (totalMatches !== 1 ? "s" : "") +
+      ".";
 
-        searchResult.innerHTML =
-            "Found <strong>" +
-            totalMatches +
-            "</strong> matching item" +
-            (totalMatches !== 1 ? "s" : "") +
-            ".";
+    noResult.style.display = "none";
+  } else {
+    searchResult.innerHTML =
+      'No inventory items match <strong>"' + searchInput + '"</strong>.';
 
-        noResult.style.display = "none";
+    noResult.style.display = "block";
+  }
+}
 
+/*SEARCH FOR LOG*/
+
+function searchLog() {
+  let search = document.getElementById("logSearch").value.toLowerCase();
+
+  let rows = document.querySelectorAll("#returnTable tr");
+
+  rows.forEach((row) => {
+    let text = row.textContent.toLowerCase();
+
+    if (text.includes(search)) {
+      row.style.display = "";
     } else {
-
-        searchResult.innerHTML =
-            "No inventory items match <strong>\"" +
-            searchInput +
-            "\"</strong>.";
-
-        noResult.style.display = "block";
-
-    }}
-
-
-    /*SEARCH FOR LOG*/
-
-    function searchLog() {
-
-    let search = document.getElementById("logSearch").value.toLowerCase();
-
-    let rows = document.querySelectorAll("#returnTable tr");
-
-    rows.forEach(row => {
-
-        let text = row.textContent.toLowerCase();
-
-        if (text.includes(search)) {
-
-            row.style.display = "";
-
-        } else {
-
-            row.style.display = "none";
-
-        }
-
-    });
-
+      row.style.display = "none";
+    }
+  });
 }
 /* MASK EMAIL */
 
-function maskEmail(email){
+function maskEmail(email) {
   let newemail;
-  let last = email.slice(email.indexOf("@") - 1)
-  let middle = "*".repeat(email.slice(1, email.indexOf("@") - 1).length)
-  let first = email.slice(0 , 1)
-  return newemail = first + middle + last
-
+  let last = email.slice(email.indexOf("@") - 1);
+  let middle = "*".repeat(email.slice(1, email.indexOf("@") - 1).length);
+  let first = email.slice(0, 1);
+  return (newemail = first + middle + last);
 }
 
 /*  RESERVATION */
