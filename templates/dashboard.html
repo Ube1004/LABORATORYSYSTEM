@@ -112,22 +112,10 @@
                     <p>Borrowers with the most borrowed items</p>
                 </div>
             </div>
-            {% for row in top_borrowers %}
+
 
 <li>
 
-{{ loop.index }}.
-{{ row["BorrowerName"] }}
-
--
-
-{{ row["TotalBorrowed"] }}
-items
-
-
-</li>
-
-{% endfor %}
 
 </ul>
             <canvas id="borrowerChart"></canvas>

@@ -86,14 +86,15 @@ function qrscan() {
 
 // QR SCAN
 function startScanner() {
+  openForm('cameraForm');
   scanner = new Html5Qrcode("reader");
-
+  
   scanner
     .start(
       { facingMode: "environment" },
       {
         fps: 10,
-        qrbox: 250,
+        qrbox: 400,
       },
       (decodedText) => {
         console.log("QR CODE:", decodedText);
@@ -119,6 +120,7 @@ function stopScanner(afterStop) {
   }
 
   if (scanner) {
+    closeForm('cameraForm')
     scanner
       .stop()
       .then(() => {
@@ -961,4 +963,5 @@ function maskEmail(email) {
   return (newemail = first + middle + last);
 }
 
-/*  RESERVATION */
+
+
