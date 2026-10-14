@@ -33,24 +33,14 @@
     <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
-<div class="main" style="flex-direction: column; align-items: stretch;">
+<div class="main" style="flex-direction: column; align-items: center;">
 
     <!-- TOP SUMMARY -->
     <div style="display:flex; gap:15px; margin-bottom:20px;">
 
-    <div class="card">
-        <h3 id="returnedCount">
-            {{ data | selectattr('Status', 'equalto', 'Returned') | list | length }}
-        </h3>
-        <p>Returned</p>
-    </div>
+  
+     
 
-    <div class="card">
-        <h3 id="notReturnedCount">
-            {{ data | rejectattr('Status', 'equalto', 'Returned') | list | length }}
-        </h3>
-        <p>Not Returned</p>
-    </div>
 
     <div class="card" onclick="openForm('returnForm')">
         <h3>

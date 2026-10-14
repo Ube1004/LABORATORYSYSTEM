@@ -169,6 +169,9 @@
         Showing all laboratory inventory items.
     </p>
 
+    
+
+
 
     <!-- ================= NON-TOXIC / LOW-HAZARD CHEMICALS ================= -->
 
@@ -1025,16 +1028,10 @@
                 onclick="startScanner()">
                 Scan Items
             </button>
-            <button
-                type="button"
-                class="scan-btn"
-                onclick="stopScanner(qrscanform)">
-                Stop Scanner
-            </button>
+
 
         </div>
 
-<div id="reader"></div>
 
             <button
                 class="confirm-btn"
@@ -1047,6 +1044,20 @@
         </div>
 
     </div>
+
+</div>
+<!--Camera Form-->
+<div id="cameraForm" class="modal">
+    <div class="modal-content form-container">
+
+        <span class="close" onclick="closeForm('cameraForm')">&times;</span>
+            <div id="reader"></div>
+            <button
+                type="button"
+                class="scan-btn"
+                onclick="stopScanner(qrscanform)">
+                Stop Scanner
+            </button>
 
 </div>
 
@@ -1089,7 +1100,7 @@
         popovertargetaction="hide">
         Close
     </button>
-
+</div>
 </div>
 
 
@@ -1900,6 +1911,8 @@
         </div>
 
     </div>
+
+
 
 </body>
 </html>
