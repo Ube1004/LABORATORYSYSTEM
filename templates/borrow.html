@@ -1043,7 +1043,6 @@
 
 
         <div class="button-group">
-
             <button
                 type="button"
                 class="scan-btn"
@@ -1051,7 +1050,12 @@
                 Scan Items
             </button>
 
-
+            <button
+                type="button"
+                class="scan-btn"
+                onclick="manualAdd()">
+                Manual Add
+            </button>
         </div>
 
 
@@ -1059,7 +1063,7 @@
                 class="confirm-btn"
                 onclick="confirmborrow(borrowData)"
                 id="confirmBtn"
-                style="display:none;">
+                style="display:;">
                 Confirm Borrow
             </button>
 
@@ -1217,7 +1221,7 @@
                             <div id="inputs"></div>
 
                             <button type="button"
-                                onclick="addInput('text', 'name[]', 'item', 'Test ')">
+                                onclick="addInput('text', 'name[]', 'item', 'Grp', test1)">
                                 + Add
                             </button>
                         </td>

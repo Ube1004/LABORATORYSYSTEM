@@ -68,59 +68,62 @@
 >
 
 {% if session['role'] == 'superAdmin' %}
-    <!-- TABLE -->
-    <div class="welcome-box">
-        <h2>Return Records</h2>
+  <!-- TABLE -->
+<div class="welcome-box return-box">
+    <h2>Return Records</h2>
 
-        <table style="width:100%; border-collapse: collapse;">
-    <thead>
-        <tr style="background:#f0f0f0;">
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Institute</th>
-            <th>Date Borrowed</th>
-            <th>Due Date</th>
-            <th>Borrowed Item</th>
-            <th>Date Returned</th>
-            <th>Approved By</th>
-            <th id="tablereturn"style="">Action</th>
-        </tr>
-    </thead>
+    <div class="table-container">
+        <table class="return-table">
+            <thead>
+                <tr style="background:#f0f0f0;">
+                    
+                    <th>ID</th>
+                    <th>Name</th>
+                    <!--<th>Email</th>-->
+                    <th>Contact</th>
+                    <th>Institute</th>
+                    <th>Date Borrowed</th>
+                    <th>Due Date</th>
+                    <th>Borrowed Item</th>
+                    <th>Date Returned</th>
+                    <th>Approved By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-    <tbody id="returnTable">
-        {% for row in data %}
-        <tr>
-            <td>{{ row['SchoolID'] }}</td>
-            <td>{{ row['BorrowerName'] }}</td>
-            <td>{{ row['Email'] }}</td>
-            <td>{{ row['Contact'] }}</td>
-            <td>{{ row['Department'] }}</td>
-            <td>{{ row['DateBorrowed'] }}</td>
-            <td>{{ row['ExpectedReturnDate'] }}</td>
-            
-            <td>
-                {% for item in row['Items'] %}
-                    <div>{{ item }}</div>
+            <tbody id="returnTable">
+                {% for row in data %}
+                <tr>
+                    
+                    <td>{{ row['SchoolID'] }}</td>
+                    <td>{{ row['BorrowerName'] }}</td>
+                    <!--<td>{{ row['Email'] }}</td>-->
+                    <td>{{ row['Contact'] }}</td>
+                    <td>{{ row['Department'] }}</td>
+                    <td>{{ row['DateBorrowed'] }}</td>
+                    <td>{{ row['ExpectedReturnDate'] }}</td>
+
+                    <td>
+                        {% for item in row['Items'] %}
+                            <div>{{ item }}</div>
+                        {% endfor %}
+                    </td>
+
+                    <td>{{ row['DateReturned'] }}</td>
+                    <td>{{ row['ApprovedBy'] }}</td>
+                    <td>
+                        <button
+                            class="modify-btn"
+                            onclick="modifyRecord('{{ row['SchoolID'] }}')">
+                            Modify
+                        </button>
+                    </td>
+                </tr>
                 {% endfor %}
-            </td>
-
-            <td>{{ row['DateReturned'] }}</td>
-            <td>{{ row['ApprovedBy'] }}</td>
-            <td id="returntd">
-                <button 
-                    class="modify-btn"
-                    onclick="modifyRecord(`{{ row['SchoolID'] }}`)">
-                    Modify
-                </button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </tbody>
+        </table>
     </div>
-
+</div>
     {% else %}
     <!-- TABLE -->
     <div class="welcome-box">

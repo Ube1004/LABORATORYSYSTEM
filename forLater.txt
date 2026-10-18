@@ -2,8 +2,40 @@
 / ADD INPUT BOTTON  /
 
 <button type="button"
-onclick="addInput('text', 'name[]', 'item', 'Test ')">
+onclick="addInput('text', 'name[]', 'item', 'PlaceHolder', Function)">
 + Add
 </button>
 
 / END ADD INPUT BOTTON /
+
+/ FORM /
+<form id="myForm">
+    <label>Name:</label>
+    <input type="text" name="name" required>
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+/FOR FLASK/
+<form action="/save" method="POST">
+    <input type="text" name="name" placeholder="Name">
+    <input type="email" name="email" placeholder="Email">
+
+    <button type="submit">Submit</button>
+</form>
+
+@app.route("/save", methods=["POST"])
+def save():
+    name = request.form.get("name")
+    email = request.form.get("email")
+
+    print(name)
+    print(email)
+
+    return "Form received!"
+/END o' FLASK/
+
+/ END FORM/

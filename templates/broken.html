@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Broken Items</title>
+    <title>Forms</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
@@ -45,8 +45,9 @@
         <h2 class="table-title">Reservation Form</h2>
 
         <div class="table-wrapper">
-            <table class="records-table">
 
+<button id="seeAllBtn" onclick="seeAll()">See All</button>
+            <table class="records-table" id ="tableReservation">
                 <thead>
                     <tr>
                         <th>Nature of Activity</th>
@@ -62,44 +63,25 @@
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <td>Chemistry Experiment</td>
-                        <td>2026-10-10</td>
-                        <td>To study chemical reactions</td>
-                        <td>2026-10-20</td>
-                        <td>9:00 AM - 11:00 AM</td>
-                        <td>BSIS 2-A</td>
-                        <td>35</td>
-                        <td>Beakers, Test Tubes, Graduated Cylinder</td>
-                        <td>Mr. Santos</td>
+                    {%  for row in data   %}
+                    <tr class="data-row">
+                        <td>{{  row["activity"]  }}</td>
+                        <td>{{  row["dateFiled"]  }}</td>
+                        <td>{{  row["objective"]  }}</td>
+                        <td>{{  row["dateOfUse"]  }}</td>
+                        <td>{{  row["time"]  }}</td>
+                        <td>{{  row["yearAndSection"]  }}</td>
+                        <td>{{  row["numberOfStudent"]  }}</td>
+                        <td>{{  row["ItemID"]  }}</td>
+                        <td>{{  row["teacher"]  }}</td>
+                        
                     </tr>
-
-                    <tr>
-                        <td>Physics Laboratory</td>
-                        <td>2026-10-11</td>
-                        <td>To measure force and motion</td>
-                        <td>2026-10-22</td>
-                        <td>1:00 PM - 3:00 PM</td>
-                        <td>BSIT 1-B</td>
-                        <td>30</td>
-                        <td>Spring Scale, Meter Stick, Weights</td>
-                        <td>Ms. Reyes</td>
-                    </tr>
-
-                    <tr>
-                        <td>Biology Activity</td>
-                        <td>2026-10-12</td>
-                        <td>To observe plant cells</td>
-                        <td>2026-10-24</td>
-                        <td>10:00 AM - 12:00 PM</td>
-                        <td>BSIS 3-A</td>
-                        <td>28</td>
-                        <td>Microscope, Slides, Cover Slips</td>
-                        <td>Mrs. Cruz</td>
-                    </tr>
+                    {% endfor  %}
+                   
                 </tbody>
 
             </table>
+            
         </div>
 
     </div>

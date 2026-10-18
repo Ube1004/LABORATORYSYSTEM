@@ -83,6 +83,28 @@ function qrscan() {
     
 */
 }
+// Manual Add
+function manualAdd() {
+    let code = prompt("Enter the item code:");
+
+    if (code === null) return;
+
+    code = code.trim();
+
+    if (!code) {
+        alert("Please enter an item code.");
+        return;
+    }
+
+    if (codes.includes(code)) {
+        alert("This item has already been added.");
+        return;
+    }
+
+    codes.push(code);
+
+    loadBorrowItems();
+}
 
 // QR SCAN
 function startScanner() {
@@ -139,84 +161,128 @@ function stopScanner(afterStop) {
   }
 }
 
-function qrscanform(codes) {
-  let studentid = document.getElementById("StudentID").value;
-  let name = document.getElementById("Name").value;
-  let email = document.getElementById("Email").value;
-  let institute = document.getElementById("Institute").value;
-  let contact = document.getElementById("Contact").value;
-  let dateB = document.getElementById("dateBorrowed").value;
-  let dateR = document.getElementById("dateReturn").value;
-  let approvedBy = document.getElementById("approvedBy").value;
-  let remarks = document.getElementById("remarks").value;
 
-  if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
-    document.getElementById("mydiv").showPopover();
-    return;
-  }
+function loadBorrowItems() {
+    let studentid = document.getElementById("StudentID").value.trim();
+    let name = document.getElementById("Name").value.trim();
+    let email = document.getElementById("Email").value.trim();
+    let institute = document.getElementById("Institute").value.trim();
+    let contact = document.getElementById("Contact").value.trim();
+    let dateB = document.getElementById("dateBorrowed").value;
+    let dateR = document.getElementById("dateReturn").value;
+    let approvedBy = document.getElementById("approvedBy").value.trim();
+    let remarks = document.getElementById("remarks").value.trim();
 
-  fetch("/qrscan", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      codes: codes,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      let html = document.getElementById("itemBox").innerHTML;
+    if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
+        document.getElementById("mydiv").showPopover();
+        return;
+    }
 
-      data.items.forEach((item) => {
-        html += `
-                <div class="item">
-                    ${item.Type} with code ${item.Code}
-                </div>
-            `;
-      });
+    fetch("/qrscan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ codes: codes })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const itemBox = document.getElementById("itemBox");
+        itemBox.innerHTML = "";
 
-      document.getElementById("itemBox").innerHTML = html;
+        data.items.forEach(item => {
+            const div = document.createElement("div");
+            div.classList.add("item");
+            div.textContent = `${item.Type} with code ${item.Code}`;
+            itemBox.appendChild(div);
+        });
 
-      // CREATE BORROW DATA
-      borrowData = {
-        name: name,
-        studentid: studentid,
-        email: email,
-        institute: institute,
-        contact: contact,
-        dateB: dateB,
-        dateR: dateR,
-        items: data.items,
-        approvedBy: approvedBy,
-        remarks: remarks,
-      };
+        borrowData = {
+            name,
+            studentid,
+            email,
+            institute,
+            contact,
+            dateB,
+            dateR,
+            items: data.items,
+            approvedBy,
+            remarks
+        };
 
-      document.getElementById("confirmBtn").style.display = "block";
+        document.getElementById("confirmBtn").style.display = "block";
 
-      if (data.missing && data.missing.length > 0) {
-        alert("Missing/Not on Database: " + data.missing.join(", "));
-      }
+        if (data.missing?.length) {
+            alert("Missing/Not on Database: " + data.missing.join(", "));
+        }
+    })
+    .catch(error => {
+        console.error("Error loading items:", error);
+        alert("Failed to load item details.");
     });
 }
-function confirmborrow(borrowData) {
-  if (!borrowData) {
-    alert("Must Insert Datas first");
-  } else {
-    fetch("/confirmborrow", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(borrowData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
 
-        alert("Data Successfully inserted");
-        returning();
-      });
-  }
+
+function qrscanform(codes) {
+    loadBorrowItems();
 }
+
+function confirmborrow(borrowData) {
+    if (!borrowData) {
+        alert("Must insert data first");
+        return;
+    }
+
+    if (
+        !borrowData.studentid ||
+        !borrowData.name ||
+        !borrowData.email ||
+        !borrowData.institute ||
+        !borrowData.contact ||
+        !borrowData.approvedBy
+    ) {
+        document.getElementById("mydiv").showPopover();
+        return;
+    }
+
+    fetch("/confirmborrow", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(borrowData)
+    })
+.then(async res => {
+    const text = await res.text();
+
+    console.log("Confirm borrow status:", res.status);
+    console.log("Confirm borrow response:", text);
+
+    let data;
+
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error("Flask returned HTML instead of JSON. Check the Python terminal.");
+    }
+
+    if (!res.ok) {
+        throw new Error(data.error || "Borrowing failed");
+    }
+
+    return data;
+})
+.then(data => {
+    console.log(data);
+    alert("Data successfully inserted");
+    returning();
+})
+.catch(error => {
+    console.error("Confirm borrow error:", error);
+    alert(error.message);
+});
+}
+
 
 function test() {
   let studentid = document.getElementById("StudentID").value;
@@ -287,14 +353,28 @@ function openForm(formId, itemId) {
 
 /* DISPLAY BORROW FORM */
 document.addEventListener("DOMContentLoaded", function () {
-  let now = new Date();
-  let today = now.toISOString().split("T")[0];
-  let returnDateObj = new Date(today);
-  let currentTime = now.toTimeString().slice(0, 5);
-  returnDateObj.setDate(returnDateObj.getDate() + 7);
-  document.getElementById("dateBorrowed").value = today;
-  document.getElementById("dateReturn").value = today;
-  document.getElementById("dateTimeBorrowed").value = currentTime;
+    let now = new Date();
+    let today = now.toISOString().split("T")[0];
+    let returnDateObj = new Date(today);
+    let currentTime = now.toTimeString().slice(0, 5);
+
+    returnDateObj.setDate(returnDateObj.getDate() + 7);
+
+    let dateBorrowed = document.getElementById("dateBorrowed");
+    let dateReturn = document.getElementById("dateReturn");
+    let dateTimeBorrowed = document.getElementById("dateTimeBorrowed");
+
+    if (dateBorrowed) {
+        dateBorrowed.value = today;
+    }
+
+    if (dateReturn) {
+        dateReturn.value = returnDateObj.toISOString().split("T")[0];
+    }
+
+    if (dateTimeBorrowed) {
+        dateTimeBorrowed.value = currentTime;
+    }
 });
 
 function qrmaker() {
@@ -526,7 +606,10 @@ const previewContainer = document.getElementById("previewContainer");
 
 let photos = [];
 let imageData = "";
-preview.src = imageData;
+
+if (preview) {
+    preview.src = imageData;
+}
 
 // Open camera
 navigator.mediaDevices
@@ -965,7 +1048,7 @@ function maskEmail(email) {
 
 
 /* add Input */
-function addInput(type, name, id, placeholder) {
+function addInput(type, name, id, placeholder, thenWhere) {
     const container = document.getElementById("inputs");
 
     const input = document.createElement("input");
@@ -977,4 +1060,40 @@ function addInput(type, name, id, placeholder) {
 
     container.appendChild(input);
     container.appendChild(document.createElement("br"));
+    if (thenWhere){
+      thenWhere();
+    }
+}
+function hideExtraRows() {
+    const rows = document.querySelectorAll("#tableReservation tbody tr.data-row");
+    const button = document.getElementById("seeAllBtn");
+
+    console.log("Rows found:", rows.length);
+
+    rows.forEach((row, index) => {
+        row.hidden = index >= 5;
+    });
+
+    if (button) {
+        button.textContent = "See All";
+    }
+}
+
+function seeAll() {
+    const rows = document.querySelectorAll("#tableReservation tbody tr.data-row");
+    const button = document.getElementById("seeAllBtn");
+
+    const showingAll = button.textContent === "See All";
+
+    rows.forEach((row, index) => {
+        row.hidden = !showingAll && index >= 5;
+    });
+
+    button.textContent = showingAll ? "See Less" : "See All";
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hideExtraRows);
+} else {
+    hideExtraRows();
 }

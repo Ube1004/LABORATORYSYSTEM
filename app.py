@@ -33,7 +33,7 @@ def login():
     username = data.get('username')
     password = str(data.get('password'))
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cur = conn.cursor()
@@ -84,7 +84,7 @@ def getItem():
     data = request.get_json()
     ItemId = data.get('itemId')
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -126,7 +126,7 @@ def getItem():
 @app.route('/borrow')
 def borrow():
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
@@ -170,12 +170,12 @@ def dashboard():
         return render_template('login.html')
 
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cur = conn.cursor()
@@ -266,7 +266,7 @@ def documentation():
 @app.route('/analytics')
 def analytics():
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cur = conn.cursor()
@@ -311,7 +311,45 @@ def analytics():
 
 @app.route('/broken')
 def broken():
-    return render_template('broken.html')
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * 
+        FROM Reservation
+        ORDER BY dateOfUse
+        DESC;
+        
+    """)
+
+    rows = cursor.fetchall()
+    
+    conn.close()
+
+    datas = []
+
+    for row in rows:
+
+        datas.append({
+            "reservationID": row[0],
+            "SchoolID": row[1],
+            "ItemID": row[2],
+            "activity": row[3],
+            "objective": row[4],
+            "teacher": row[5],
+            "dateFiled" : row[6],
+            "dateOfUse" : row [7],
+            "ApprovedBy": row [8],
+            "time": row[9],
+            "yearAndSection":row[10],
+            "numberOfStudent":row[11],
+
+        })
+
+
+    return render_template('broken.html', data=datas)
 
 
 # ============================================================
@@ -321,7 +359,7 @@ def broken():
 @app.route('/brokenitems')
 def getbroken():
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
@@ -359,7 +397,7 @@ def getbroken():
 @app.route('/returningItem')
 def get_nearest_expiry():
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
@@ -410,7 +448,7 @@ def test():
 @app.route('/items')
 def get_items():
 
-    db_conn = sqlite3.connect(DB_PATH)
+    db_conn = sqlite3.connect(DB_PATH, timeout=5)
     cursor = db_conn.cursor()
 
     cursor.execute("SELECT * FROM Items")
@@ -443,7 +481,7 @@ def get_items():
 @app.route('/count')
 def count():
 
-    db_conn = sqlite3.connect(DB_PATH)
+    db_conn = sqlite3.connect(DB_PATH, timeout=5)
 
     type_ = ""
 
@@ -481,7 +519,7 @@ def qr_scan():
 
     placeholder = ','.join('?' * len(codes))
 
-    db_conn = sqlite3.connect(DB_PATH)
+    db_conn = sqlite3.connect(DB_PATH, timeout=5)
     cursor = db_conn.cursor()
 
     cursor.execute(
@@ -522,10 +560,10 @@ def qr_scan():
 # BORROWING
 # ============================================================
 
+
 @app.route('/confirmborrow', methods=['POST'])
 def confirm_borrow():
-
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     name = data.get('name')
     studentid = data.get('studentid')
@@ -538,64 +576,77 @@ def confirm_borrow():
     approvedBy = data.get('approvedBy')
     remarks = data.get('remarks')
 
-    db_conn = sqlite3.connect(DB_PATH)
-    cursor = db_conn.cursor()
+    # Validate required data before inserting
+    if not name or not studentid or not items:
+        return jsonify({
+            "success": False,
+            "error": "Missing borrower name, student ID, or items."
+        }), 400
 
-    cursor.execute("""
-        SELECT * FROM Borrower
-        WHERE SchoolID = ?
-    """, (studentid,))
+    db_conn = sqlite3.connect(DB_PATH, timeout=10)
 
-    existing = cursor.fetchone()
-
-    if not existing:
+    try:
+        cursor = db_conn.cursor()
 
         cursor.execute("""
-            INSERT INTO Borrower
-            (schoolID, BorrowerName, Email, Department, Contact)
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            studentid,
-            name,
-            email,
-            institute,
-            contact
-        ))
+            SELECT * FROM Borrower
+            WHERE SchoolID = ?
+        """, (studentid,))
 
-    # LOOP THROUGH ITEMS
-    for item in items:
+        existing = cursor.fetchone()
 
-        # INSERT LOG
-        cursor.execute("""
-            INSERT INTO Log
-            (SchoolID, ItemID, DateBorrowed, ExpectedReturnDate, ApprovedBy, Remarks)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            studentid,
-            item['ItemID'],
-            dateB,
-            dateR,
-            approvedBy,
-            remarks
-        ))
+        if not existing:
+            cursor.execute("""
+                INSERT INTO Borrower
+                (SchoolID, BorrowerName, Email, Department, Contact)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                studentid,
+                name,
+                email,
+                institute,
+                contact
+            ))
 
-        # UPDATE ITEM STATUS
-        cursor.execute("""
-            UPDATE Items
-            SET Status = ?
-            WHERE ItemID = ?
-        """, (
-            "BORROWED",
-            item['ItemID']
-        ))
+        for item in items:
+            cursor.execute("""
+                INSERT INTO Log
+                (SchoolID, ItemID, DateBorrowed, ExpectedReturnDate,
+                 ApprovedBy, Remarks)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                studentid,
+                item['ItemID'],
+                dateB,
+                dateR,
+                approvedBy,
+                remarks
+            ))
 
-    db_conn.commit()
-    db_conn.close()
+            cursor.execute("""
+                UPDATE Items
+                SET Status = ?
+                WHERE ItemID = ?
+            """, ("BORROWED", item['ItemID']))
 
-    return jsonify({
-        "success": True,
-        "message": "Borrow confirmed"
-    })
+        db_conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Borrow confirmed"
+        })
+
+    except Exception:
+        db_conn.rollback()
+        app.logger.exception("Error confirming borrow")
+        return jsonify({
+            "success": False,
+            "error": "Failed to confirm borrowing."
+        }), 500
+
+    finally:
+        db_conn.close()
+
 
 
 # ============================================================
@@ -607,7 +658,7 @@ def returning():
 
     is_superAdmin = session.get('role') == 'superAdmin'
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cur = conn.cursor()
@@ -633,6 +684,10 @@ def returning():
         ON Log.SchoolID = Borrower.SchoolID
     INNER JOIN Items
         ON Log.ItemID = Items.ItemID
+
+    ORDER BY Log.DateBorrowed
+    DESC
+    LIMIT 10;
 """
 
     cur.execute(query)
@@ -687,7 +742,7 @@ def confirm_return():
 
     placeholder = ','.join('?' * len(qrcodes))
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
     cur = conn.cursor()
@@ -738,7 +793,7 @@ def update_return():
 
     items = data.get('items')
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     for item in items:
@@ -780,7 +835,7 @@ def manualReturn():
     school_id = data['studentId']
     code = data['code']
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     # FIND ITEM USING CODE
@@ -915,7 +970,7 @@ def createUser():
 
     hashed_password = generate_password_hash(password)
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     try:
@@ -961,7 +1016,7 @@ def createUser():
 @app.route("/get_student/<student_id>")
 def get_student(student_id):
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     cur.execute(
@@ -1002,7 +1057,7 @@ def get_student(student_id):
 @app.route("/manageAccount")
 def manageAccount():
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     cur.execute(
@@ -1029,7 +1084,7 @@ def manageAccount():
 @app.route("/get_user/<int:userID>")
 def get_user(userID):
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     cur.execute("""
@@ -1060,7 +1115,7 @@ def update_user(userID):
 
     data = request.get_json()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     if data.get("password"):
@@ -1121,7 +1176,7 @@ def update_user(userID):
 @app.route("/deleteUser/<int:userID>", methods=["POST"])
 def deleteUser(userID):
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=5)
     cur = conn.cursor()
 
     # Get the user's name before deleting
