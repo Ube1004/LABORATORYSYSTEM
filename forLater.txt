@@ -1,0 +1,9 @@
+
+/ ADD INPUT BOTTON  /
+
+<button type="button"
+onclick="addInput('text', 'name[]', 'item', 'Test ')">
++ Add
+</button>
+
+/ END ADD INPUT BOTTON /

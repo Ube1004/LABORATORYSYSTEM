@@ -131,13 +131,27 @@ def borrow():
 
     cursor = conn.cursor()
 
-    cursor.execute(""" 
-        SELECT ItemId, Category, TRIM(Class) AS Class, Type, COUNT(*) AS Quantity
-        FROM Items
-        GROUP BY Category, Class, Type
-    """)
+    cursor.execute("""
+    SELECT
+        MIN(Items.ItemID) AS ItemID,
+        Items.Category,
+        TRIM(Items.Class) AS Class,
+        Items.Type,
+        Items.Remarks,
+        COUNT(DISTINCT Items.ItemID) AS Quantity,
+        COUNT(DISTINCT Reservation.ReservationID) AS reservedItems
+    FROM Items
+    LEFT JOIN Reservation
+        ON Items.ItemID = Reservation.ItemID
+    GROUP BY
+        Items.Category,
+        TRIM(Items.Class),
+        Items.Type,
+        Items.Remarks
+""")
 
     items = cursor.fetchall()
+   
 
     conn.close()
 

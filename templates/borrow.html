@@ -194,6 +194,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -212,6 +213,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                               {% if session["role"] == "superAdmin" %}
                             <td>
@@ -254,6 +256,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -272,6 +275,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -314,6 +318,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -332,6 +337,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -374,6 +380,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -392,6 +399,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -434,6 +442,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -452,6 +461,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -494,6 +504,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -512,6 +523,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -554,6 +566,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -572,6 +585,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -614,6 +628,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -632,6 +647,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -674,6 +690,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -692,6 +709,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -737,6 +755,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -755,6 +774,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                             {% if session["role"] == "superAdmin" %}
                             <td>
@@ -798,6 +818,7 @@
                     <th style="text-align:center;">Item</th>
                     <th style="text-align:center;">Category</th>
                     <th style="text-align:center;">Quantity</th>
+                    <th style="text-align:center;">Reserved</th>
                     <th style="text-align:center;">Unit/Remarks</th>
                     {% if session["role"] == "superAdmin" %}
                                         <th style="text-align:center;"> Action
@@ -816,6 +837,7 @@
                             <td>{{ item["Type"] }}</td>
                             <td>{{ item["Category"] }}</td>
                             <td>{{ item["Quantity"] }}</td>
+                            <td>{{ item["reservedItems"] }}</td>
                             <td>{{ item["Remarks"] }}</td>
                                 {% if session["role"] == "superAdmin" %}
                                         <td>
@@ -1142,6 +1164,7 @@
                     <label>Nature of Activity:</label>
 
                     <input
+                        id="natureOfCActivity"
                         type="text"
                         placeholder="Enter nature of activity">
 
@@ -1152,7 +1175,9 @@
 
                     <label>Date Filed:</label>
 
-                    <input type="date">
+                    <input 
+                        id="dateFiled"
+                        type="date">
 
                 </div>
 
@@ -1165,6 +1190,7 @@
 
                 <input
                     type="text"
+                    id="objetives"
                     placeholder="Enter objective">
 
             </div>
@@ -1183,11 +1209,21 @@
                     </tr>
 
                 </thead>
-
                 <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <div id="inputs"></div>
 
-                  
+                            <button type="button"
+                                onclick="addInput('text', 'name[]', 'item', 'Test ')">
+                                + Add
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
+
 
             </table>
 
@@ -1197,6 +1233,7 @@
                 <label>Teacher in Charge:</label>
 
                 <input
+                    id="teacherInCharge"
                     type="text"
                     placeholder="Enter teacher's name">
 
@@ -1208,6 +1245,7 @@
                 <label>Approved by:</label>
 
                 <input
+                    id="approvedBy"
                     type="text"
                     placeholder="Enter approving person">
 

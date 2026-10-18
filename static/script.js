@@ -964,4 +964,17 @@ function maskEmail(email) {
 }
 
 
+/* add Input */
+function addInput(type, name, id, placeholder) {
+    const container = document.getElementById("inputs");
 
+    const input = document.createElement("input");
+    input.type = type;
+    input.name = name;
+    input.id = id + (container.querySelectorAll("input").length + 1);
+    input.style.width = "80px";
+    input.placeholder = placeholder + (container.querySelectorAll("input").length + 1);
+
+    container.appendChild(input);
+    container.appendChild(document.createElement("br"));
+}
