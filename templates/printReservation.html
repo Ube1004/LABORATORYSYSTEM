@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reservation Form</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: black;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .print-button {
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<button class="print-button" onclick="window.print()">
+    Print Reservation
+</button>
+
+<div class="header">
+    <img
+        src="{{ url_for('static', filename='images/logo(1).png') }}"
+        class="logo"
+        alt="CCA Logo">
+
+    <h2>CITY COLLEGE OF ANGELES</h2>
+    <h3>Institute of Education, Arts and Sciences</h3>
+    <h3>SCIENCE LABORATORY</h3>
+    <h3>RESERVATION FORM</h3>
+</div>
+
+<p>
+    <strong>School ID:</strong>
+    {{ reservation['SchoolID'] }}
+</p>
+
+<p>
+    <strong>Date Filed:</strong>
+    {{ reservation['DateFiled'] }}
+</p>
+
+<p>
+    <strong>Nature of Activity:</strong>
+    {{ reservation['Activity'] }}
+</p>
+
+<p>
+    <strong>Objective:</strong>
+    {{ reservation['Objective'] }}
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date of Activity</th>
+            <th>Time</th>
+            <th>Year & Section</th>
+            <th>Number of Students</th>
+            <th>Materials / Equipment Needed</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>{{ reservation['DateOfUse'] }}</td>
+            <td>{{ reservation['Time'] }}</td>
+            <td>{{ reservation['YearAndSection'] }}</td>
+            <td>{{ reservation['NumberOfStudent'] }}</td>
+            <td>{{ reservation['ItemsNeeded'] }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    <strong>Teacher in Charge:</strong>
+    {{ reservation['Teacher'] }}
+</p>
+
+<p>
+    <strong>Approved By:</strong>
+    {{ reservation['ApprovedBy'] }}
+</p>
+
+</body>
+</html>

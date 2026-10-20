@@ -199,7 +199,7 @@ def dashboard():
             ON Log.SchoolID = Borrower.SchoolID
         GROUP BY Borrower.SchoolID
         ORDER BY TotalBorrowed DESC
-        LIMIT 10
+        
     """)
 
     top_borrowers = cur.fetchall()
@@ -213,7 +213,7 @@ def dashboard():
             ON Log.ItemID = Items.ItemID
         GROUP BY Items.Type
         ORDER BY BorrowCount DESC
-        LIMIT 10
+        
     """)
 
     top_items = cur.fetchall()
@@ -363,96 +363,6 @@ def broken():
 
     return render_template('broken.html', data=datas)
 
-@app.route("/saveReservation", methods=["POST"])
-def saveReservation():
-    conn = sqlite3.connect(DB_PATH, timeout=5)
-    cursor = conn.cursor()
-
-    try:
-        schoolID = request.form.get("SchoolID", "").strip()
-        activity = request.form.get("activity", "").strip()
-        objective = request.form.get("objective", "").strip()
-        teacher = request.form.get("teacher", "").strip()
-        dateFiled = request.form.get("dateFiled")
-        dateOfUse = request.form.get("dateOfUse")
-        approvedBy = request.form.get("ApprovedBy", "").strip()
-        time = request.form.get("time")
-        yearAndSection = request.form.get("yearAndSection", "").strip()
-        numberOfStudent = request.form.get("numberOfStudent")
-
-        # Get all submitted equipment codes
-        itemCodes = [
-            code.strip()
-            for code in request.form.getlist("item[]")
-            if code.strip()
-        ]
-
-        if not all([
-            schoolID, teacher, approvedBy,
-            dateFiled, dateOfUse, time,
-            yearAndSection, numberOfStudent
-        ]) or not itemCodes:
-            return "Please complete all required fields.", 400
-
-        # Find the corresponding ItemIDs
-        itemIDs = []
-
-        for code in itemCodes:
-            cursor.execute(
-                "SELECT ItemID FROM Items WHERE Code = ?",
-                (code,)
-            )
-
-            result = cursor.fetchone()
-
-            if result is None:
-                conn.rollback()
-                return f"Item code '{code}' was not found.", 400
-
-            itemIDs.append(result[0])
-
-        # Save one reservation row for each item
-        for itemID in itemIDs:
-            cursor.execute("""
-                INSERT INTO Reservation (
-                    SchoolID,
-                    ItemID,
-                    activity,
-                    objective,
-                    teacher,
-                    dateFiled,
-                    dateOfUse,
-                    ApprovedBy,
-                    time,
-                    yearAndSection,
-                    numberOfStudent
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                schoolID,
-                itemID,
-                activity,
-                objective,
-                teacher,
-                dateFiled,
-                dateOfUse,
-                approvedBy,
-                time,
-                yearAndSection,
-                numberOfStudent
-            ))
-
-        conn.commit()
-
-        return broken()
-
-    except sqlite3.Error:
-        conn.rollback()
-        app.logger.exception("Failed to save reservation")
-        return "A database error occurred while saving the reservation.", 500
-
-    finally:
-        conn.close()
 
 
 # ============================================================
@@ -1343,6 +1253,129 @@ def deleteUser(userID):
         "success": True,
         "message": "User successfully deleted"
     })
+
+
+## RESERVATION
+
+
+@app.route("/saveReservation", methods=["POST"])
+def saveReservation():
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    cursor = conn.cursor()
+
+    try:
+        schoolID = request.form.get("SchoolID", "").strip()
+        activity = request.form.get("activity", "").strip()
+        objective = request.form.get("objective", "").strip()
+        teacher = request.form.get("teacher", "").strip()
+        dateFiled = request.form.get("dateFiled")
+        dateOfUse = request.form.get("dateOfUse")
+        approvedBy = request.form.get("ApprovedBy", "").strip()
+        time = request.form.get("time")
+        yearAndSection = request.form.get("yearAndSection", "").strip()
+        numberOfStudent = request.form.get("numberOfStudent")
+
+        # Get all submitted equipment codes
+        itemCodes = [
+            code.strip()
+            for code in request.form.getlist("item[]")
+            if code.strip()
+        ]
+
+        if not all([
+            schoolID, teacher, approvedBy,
+            dateFiled, dateOfUse, time,
+            yearAndSection, numberOfStudent
+        ]) or not itemCodes:
+            return "Please complete all required fields.", 400
+
+        # Find the corresponding ItemIDs
+        itemIDs = []
+
+        for code in itemCodes:
+            cursor.execute(
+                "SELECT ItemID FROM Items WHERE Code = ?",
+                (code,)
+            )
+
+            result = cursor.fetchone()
+
+            if result is None:
+                conn.rollback()
+                return f"Item code '{code}' was not found.", 400
+
+            itemIDs.append(result[0])
+
+        # Save one reservation row for each item
+        for itemID in itemIDs:
+            cursor.execute("""
+                INSERT INTO Reservation (
+                    SchoolID,
+                    ItemID,
+                    activity,
+                    objective,
+                    teacher,
+                    dateFiled,
+                    dateOfUse,
+                    ApprovedBy,
+                    time,
+                    yearAndSection,
+                    numberOfStudent
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                schoolID,
+                itemID,
+                activity,
+                objective,
+                teacher,
+                dateFiled,
+                dateOfUse,
+                approvedBy,
+                time,
+                yearAndSection,
+                numberOfStudent
+            ))
+
+        conn.commit()
+
+        # Tell JavaScript that saving succeeded
+        return "Reservation saved successfully", 200
+
+    except sqlite3.Error:
+        conn.rollback()
+        app.logger.exception("Failed to save reservation")
+        return "A database error occurred while saving the reservation.", 500
+
+    finally:
+        conn.close()
+
+
+@app.route('/printReservation/<int:reservationID>')
+def printReservation(reservationID):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM Reservation
+        WHERE ReservationID = ?
+    """, (reservationID,))
+
+    reservation = cursor.fetchone()
+    conn.close()
+
+    if reservation is None:
+        return "Reservation not found", 404
+
+    return render_template(
+        'printReservation.html',
+        reservation=reservation
+    )
+
+
+
 
 
 # ============================================================

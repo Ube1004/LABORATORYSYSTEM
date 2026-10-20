@@ -1135,3 +1135,165 @@ function seeAll(tableId, buttonId, limit = 5) {
 
     button.textContent = showingAll ? "See Less" : "See All";
 }
+
+
+ // reservation
+
+const reservationForm = document.querySelector('#reservationForm form');
+
+reservationForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const form = this;
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        });
+
+        if (response.ok) {
+            showReservationSummary(form);
+        } else {
+            const message = await response.text();
+            alert(message || "Failed to save reservation.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Something went wrong. Please try again.");
+    }
+});
+
+function showReservationSummary(form) {
+    const data = new FormData(form);
+
+    const fields = {
+        sumSchoolID: data.get("SchoolID"),
+        sumDateFiled: data.get("dateFiled"),
+        sumActivity: data.get("activity"),
+        sumObjective: data.get("objective"),
+        sumDateOfUse: data.get("dateOfUse"),
+        sumTime: data.get("time"),
+        sumYearSection: data.get("yearAndSection"),
+        sumStudents: data.get("numberOfStudent"),
+        sumTeacher: data.get("teacher"),
+        sumApprovedBy: data.get("ApprovedBy")
+    };
+
+    for (const [id, value] of Object.entries(fields)) {
+        document.getElementById(id).textContent = value || "-";
+    }
+
+    const items = data.getAll("item[]").filter(item => item.trim());
+
+    document.getElementById("sumItems").textContent =
+        items.join(", ") || "-";
+
+    closeForm("reservationForm");
+    document.getElementById("reservationSummary").style.display = "block";
+}
+
+
+function printSummary() {
+    const printable = document.getElementById("printableReservation");
+
+    if (!printable) {
+        alert("Reservation summary not found.");
+        return;
+    }
+
+    // Open a separate window without the website's layout
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+
+    if (!printWindow) {
+        alert("Please allow pop-ups to print the reservation.");
+        return;
+    }
+
+    printWindow.document.open();
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Reservation Form</title>
+
+            <style>
+                @page {
+                    size: A4 portrait;
+                    margin: 15mm;
+                }
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                    color: black;
+                    margin: 0;
+                    width: 100%;
+                }
+
+                .form-header {
+                    text-align: center;
+                    margin-bottom: 24px;
+                }
+
+                .form-header img {
+                    width: 75px;
+                    height: auto;
+                    object-fit: contain;
+                }
+
+                h2, h3, h4 {
+                    margin: 5px 0;
+                }
+
+                p {
+                    margin: 12px 0;
+                    overflow-wrap: anywhere;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                    margin: 16px 0;
+                }
+
+                th, td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: left;
+                    overflow-wrap: anywhere;
+                    vertical-align: top;
+                }
+
+                th {
+                    font-weight: bold;
+                }
+
+                #sumItems {
+                    white-space: pre-wrap;
+                }
+            </style>
+        </head>
+
+        <body>
+            ${printable.innerHTML}
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    // Wait for the logo and other resources before printing
+    printWindow.onload = function () {
+        printWindow.focus();
+        printWindow.print();
+    };
+}
+
+// end of reservation

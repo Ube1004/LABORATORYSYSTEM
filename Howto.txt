@@ -8,6 +8,6 @@ powershell:
 .\venv\Scripts\Activate.ps1
 
 git add .
-git commit -m "BYPASS SECURED + SEE ALL BUTTON"
+git commit -m "changes"
 git pull --no-rebase origin main
 git push

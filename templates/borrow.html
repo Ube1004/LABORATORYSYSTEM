@@ -1061,7 +1061,7 @@
                 class="confirm-btn"
                 onclick="confirmborrow(borrowData)"
                 id="confirmBtn"
-                style="display:;">
+                style="display:block">
                 Confirm Borrow
             </button>
 
@@ -1278,6 +1278,74 @@
 
 </div>
 
+<!---RESERVATION SUMMARY-->
+<div id="reservationSummary" class="modal">
+    <div class="modal-content form-container">
+
+        <span class="close"
+              onclick="closeForm('reservationSummary')">
+            &times;
+        </span>
+
+        <div id="printableReservation">
+
+            <div class="form-header">
+                <img
+                    src="{{ url_for('static', filename='images/logo(1).png') }}"
+                    class="form-logo"
+                    alt="CCA Logo">
+
+                <h2>CITY COLLEGE OF ANGELES</h2>
+                <h3>Institute of Education, Arts and Sciences</h3>
+                <h3>SCIENCE LABORATORY</h3>
+                <h4>RESERVATION FORM</h4>
+            </div>
+
+            <p><b>School ID:</b> <span id="sumSchoolID"></span></p>
+            <p><b>Date Filed:</b> <span id="sumDateFiled"></span></p>
+            <p><b>Nature of Activity:</b> <span id="sumActivity"></span></p>
+            <p><b>Objective:</b> <span id="sumObjective"></span></p>
+
+            <table border="1" width="100%" cellspacing="0" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th>Date of Activity</th>
+                        <th>Time</th>
+                        <th>Year & Section</th>
+                        <th>Number of Students</th>
+                        <th>Materials / Equipment Needed</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td id="sumDateOfUse"></td>
+                        <td id="sumTime"></td>
+                        <td id="sumYearSection"></td>
+                        <td id="sumStudents"></td>
+                        <td id="sumItems"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><b>Teacher in Charge:</b> <span id="sumTeacher"></span></p>
+            <p><b>Approved By:</b> <span id="sumApprovedBy"></span></p>
+
+        </div>
+
+        <div class="summary-actions">
+            <button type="button" onclick="printSummary()">
+                Print Reservation
+            </button>
+
+            <button type="button"
+                    onclick="closeForm('reservationSummary')">
+                Confirm
+            </button>
+        </div>
+
+    </div>
+</div>
 
 
 <!-- ================= BREAKAGE FORM ================= -->
