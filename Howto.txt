@@ -7,6 +7,7 @@ python -m pip install -r requirements.txt
 powershell: 
 .\venv\Scripts\Activate.ps1
 
+
 git add .
 git commit -m "changes"
 git pull --no-rebase origin main
@@ -20,3 +21,9 @@ git commit -m "changes"
 git switch -c camera-fix
 
 git push -u origin camera-fix
+
+
+git switch main
+git pull --no-rebase origin main
+git merge camera-fix
+git push origin main

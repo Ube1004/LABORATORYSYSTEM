@@ -209,6 +209,7 @@ await scanner.start(
   }
 }
 async function stopScanner(afterStop) {
+  
   if (scanner) {
     try {
       if (scanner.isScanning) {
