@@ -169,6 +169,9 @@
         Showing all laboratory inventory items.
     </p>
 
+    
+
+
 
     <!-- ================= NON-TOXIC / LOW-HAZARD CHEMICALS ================= -->
 
@@ -859,10 +862,9 @@
 
         <div class="form-header">
 
-    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
-         class="form-logo"
-         alt="City College of Angeles Logo">
-
+            <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+                 class="form-logo"
+                 alt="City College of Angeles Logo">
 
             <h2>CITY COLLEGE OF ANGELES</h2>
 
@@ -876,167 +878,165 @@
 
         </div>
 
-
-        <div class="col">
-
-            <label>Name:</label>
-
-            <input
-                type="text"
-                id="Name"
-                name="Name"
-                placeholder="Enter full name">
-
-        </div>
-
-
-        <div class="col">
-
-            <label>Email:</label>
-
-            <input
-                type="email"
-                id="Email"
-                name="Email"
-                placeholder="Enter email address">
-
-        </div>
-
-
-        <div class="row">
+        <form id="borrowerForm" onsubmit="return false;">
 
             <div class="col">
 
-                <label>Student ID:</label>
+                <label for="Name">Name:</label>
 
                 <input
                     type="text"
-                    id="StudentID"
-                    name="StudentID"
-                    placeholder="Enter student ID">
+                    id="Name"
+                    name="Name"
+                    placeholder="Enter full name"
+                    required>
 
             </div>
 
+            <div class="col">
+
+                <label for="Email">Email:</label>
+
+                <input
+                    type="email"
+                    id="Email"
+                    name="Email"
+                    placeholder="Enter email address"
+                    required>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label for="StudentID">Student ID:</label>
+
+                    <input
+                        type="text"
+                        id="StudentID"
+                        name="StudentID"
+                        placeholder="Enter student ID"
+                        required>
+
+                </div>
+
+                <div class="col">
+
+                    <label for="Institute">Institute:</label>
+
+                    <input
+                        type="text"
+                        id="Institute"
+                        name="Institute"
+                        placeholder="Enter institute"
+                        required>
+
+                </div>
+
+            </div>
 
             <div class="col">
 
-                <label>Institute:</label>
+                <label for="Contact">Contact No.:</label>
+
+                <input
+                    type="tel"
+                    id="Contact"
+                    name="Contact"
+                    placeholder="09XXXXXXXXX"
+                    pattern="09[0-9]{9}"
+                    maxlength="11"
+                    required>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label for="dateBorrowed">Date Borrowed:</label>
+
+                    <input
+                        type="date"
+                        id="dateBorrowed"
+                        required>
+
+                    <label for="dateTimeBorrowed">Time Borrowed:</label>
+
+                    <input
+                        type="time"
+                        id="dateTimeBorrowed"
+                        required>
+
+                </div>
+
+                <div class="col">
+
+                    <label for="dateReturn">Date of Return:</label>
+
+                    <input
+                        type="date"
+                        id="dateReturn"
+                        required>
+
+                    <label for="dateTimeReturn">Time of Return:</label>
+
+                    <input
+                        type="time"
+                        id="dateTimeReturn"
+                        required>
+
+                </div>
+
+            </div>
+
+            <div class="col">
+
+                <label for="approvedBy">Approved by:</label>
 
                 <input
                     type="text"
-                    id="Institute"
-                    name="Institute"
-                    placeholder="Enter institute">
+                    id="approvedBy"
+                    placeholder="Enter approving person"
+                    required>
 
             </div>
-
-
-
-        <div class="col">
-
-            <label>Contact No.:</label>
-
-            <input
-                type="tel"
-                id="Contact"
-                name="Contact"
-                placeholder="09XXXXXXXXX"
-                pattern="09[0-9]{9}"
-                maxlength="11"
-                required>
-
-        </div>
-
-
-
-
-        <div class="row">
 
             <div class="col">
 
-                <label>Date Borrowed:</label>
+                <label for="remarks">Remarks:</label>
 
                 <input
-                    type="date"
-                    id="dateBorrowed">
-                <label>Time Borrowed:</label>
-                <input
-                    type="time"
-                    id="dateTimeBorrowed">
-                    
+                    type="text"
+                    id="remarks"
+                    placeholder="Enter reasonings">
 
             </div>
-
 
             <div class="col">
 
-                <label>Date of Return:</label>
+                <label>Item Borrowing:</label>
 
-                <input
-                    type="date"
-                    id="dateReturn">
-                <label>Time of Return:</label>
-
-                <input
-                    type="time"
-                    id="dateTimeReturn">
+                <div class="item-box" id="itemBox">
+                    <!-- Scanned items will appear here -->
+                </div>
 
             </div>
 
-        </div>
+            <div class="button-group">
 
+                <button
+                    type="button"
+                    class="scan-btn"
+                    onclick="startScanner()">
+                    Scan Items
+                </button>
 
-        <div class="col">
-
-            <label>Approved by:</label>
-
-            <input
-                type="text"
-                id="approvedBy"
-                placeholder="Enter approving person">
-            
-           
-        </div>
-        <div class="col">
-        <label>Remarks:</label>
-         <input
-                type="text"
-                id="remarks"
-                placeholder="Enter Reasonings">
-        </div>
-    </div>
-
-        <div class="col">
-
-            <label>Item Borrowing:</label>
-
-            <div class="item-box" id="itemBox">
-                <!-- scanned items will appear here -->
             </div>
 
-        </div>
-
-
-        <div class="button-group">
-
             <button
                 type="button"
-                class="scan-btn"
-                onclick="startScanner()">
-                Scan Items
-            </button>
-            <button
-                type="button"
-                class="scan-btn"
-                onclick="stopScanner(qrscanform)">
-                Stop Scanner
-            </button>
-
-        </div>
-
-<div id="reader"></div>
-
-            <button
                 class="confirm-btn"
                 onclick="confirmborrow(borrowData)"
                 id="confirmBtn"
@@ -1044,9 +1044,23 @@
                 Confirm Borrow
             </button>
 
-        </div>
+        </form>
 
     </div>
+
+</div>
+<!--Camera Form-->
+<div id="cameraForm" class="modal">
+    <div class="modal-content form-container">
+
+        <span class="close" onclick="closeForm('cameraForm')">&times;</span>
+            <div id="reader"></div>
+            <button
+                type="button"
+                class="scan-btn"
+                onclick="stopScanner(qrscanform)">
+                Stop Scanner
+            </button>
 
 </div>
 
@@ -1089,7 +1103,7 @@
         popovertargetaction="hide">
         Close
     </button>
-
+</div>
 </div>
 
 
@@ -1571,23 +1585,38 @@
             </div>
 
 
-            <!-- Requisition Table -->
+            <table class="breakage-table">
 
-            <table border="1" width="100%" cellspacing="0" cellpadding="5">
+                <tr>
 
-                <thead>
+                    <th>Quantity</th>
+                    <th>Instruments/Materials</th>
+                    <th>Description</th>
+                    
 
-                    <tr>
+                </tr>
+                 <td>
+                        <input type="number" min="1">
+                    </td>
 
-                        <th>Quantity</th>
+                    <td>
+                        <input type="text">
+                    </td>
 
-                        <th>
-                            Instruments / Apparatus / Materials
-                        </th>
+                    <td>
+                        <input type="text">
+                    </td>
+                    <td>
+                        <input type="number" min="1">
+                    </td>
 
-                        <th>Description</th>
+                    <td>
+                        <input type="text">
+                    </td>
 
-                    </tr>
+                    <td>
+                        <input type="text">
+                    </td>
 
                 </thead>
 
@@ -1900,6 +1929,8 @@
         </div>
 
     </div>
+
+
 
 </body>
 </html>

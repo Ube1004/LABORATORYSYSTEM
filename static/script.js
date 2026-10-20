@@ -86,14 +86,15 @@ function qrscan() {
 
 // QR SCAN
 function startScanner() {
+  openForm('cameraForm');
   scanner = new Html5Qrcode("reader");
-
+  
   scanner
     .start(
       { facingMode: "environment" },
       {
-        fps: 10,
-        qrbox: 250,
+        fps: 60,
+        qrbox: 500,
       },
       (decodedText) => {
         console.log("QR CODE:", decodedText);
@@ -119,6 +120,7 @@ function stopScanner(afterStop) {
   }
 
   if (scanner) {
+    closeForm('cameraForm')
     scanner
       .stop()
       .then(() => {
@@ -517,79 +519,165 @@ function modifyRecord(id) {
   window.location.href = "/modify/" + id;
 }
 
+/* =========================================
+   CAMERA
+   ========================================= */
+
 const video = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
-const previewContainer = document.getElementById("previewContainer");
+const photoModal = document.getElementById("photoModal");
 
 let photos = [];
 let imageData = "";
-preview.src = imageData;
 
-// Open camera
-navigator.mediaDevices
-  .getUserMedia({
-    video: true,
-  })
-  .then((stream) => {
-    video.srcObject = stream;
-  });
+
+/* =========================================
+   OPEN CAMERA
+   ========================================= */
+
+if (video && canvas && preview && photoModal) {
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+        navigator.mediaDevices.getUserMedia({
+            video: true
+        })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(error => {
+            console.error("Camera error:", error);
+
+            if (error.name === "NotAllowedError") {
+                alert("Camera access was denied. Please allow camera access in your browser settings.");
+            }
+            else if (error.name === "NotFoundError") {
+                alert("No camera was found on this device.");
+            }
+            else if (error.name === "NotReadableError") {
+                alert("The camera is already being used by another application.");
+            }
+            else {
+                alert("Unable to access the camera.");
+            }
+        });
+
+    } else {
+        alert("Camera is not supported by this browser.");
+    }
+
+}
+
+
+/* =========================================
+   TAKE PHOTO
+   ========================================= */
 
 function takePhoto() {
-  const ctx = canvas.getContext("2d");
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+    if (!video || !canvas || !preview || !photoModal) {
+        return;
+    }
 
-  ctx.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
 
-  const image = canvas.toDataURL("image/jpeg");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-  photos.push(image);
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-  renderPhotos();
+    const image = canvas.toDataURL("image/jpeg");
+
+    /* Save photo */
+    photos.push(image);
+
+    /* Show the captured photo in the center */
+    preview.src = image;
+
+    photoModal.style.display = "flex";
 }
-// Upload photo
-function uploadPhotos() {
-  fetch("/savephotos", {
-    method: "POST",
 
-    headers: {
-      "Content-Type": "application/json",
-    },
 
-    body: JSON.stringify({
-      images: photos,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message);
+/* =========================================
+   REMOVE PHOTO
+   ========================================= */
+
+function removePhoto() {
+
+    /* Remove the most recent photo */
+    photos.pop();
+
+    /* Clear preview */
+    preview.src = "";
+
+    /* Close popup */
+    photoModal.style.display = "none";
+}
+
+
+/* =========================================
+   CONFIRM PHOTO
+   ========================================= */
+
+function confirmPhoto() {
+
+    if (photos.length === 0) {
+        alert("Please take a photo first.");
+        return;
+    }
+
+    fetch("/savephotos", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            images: photos
+        })
+
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message);
+
+        /* Close popup */
+        photoModal.style.display = "none";
+
+        /* Clear preview */
+        preview.src = "";
+
+        /* Clear photos after successful save */
+        photos = [];
+
+    })
+    .catch(error => {
+
+        console.error("Upload error:", error);
+
+        alert("An error occurred while saving the photo.");
+
     });
 }
 
-function renderPhotos() {
-  previewContainer.innerHTML = "";
 
-  photos.forEach((photo, index) => {
-    previewContainer.innerHTML += `
-            <div class="photo-card">
-                <img src="${photo}" width="150">
+/* =========================================
+   CLOSE PHOTO MODAL
+   ========================================= */
 
-                <br>
+function closePhotoModal() {
 
-                <button onclick="removePhoto(${index})">
-                    ❌ Remove
-                </button>
-            </div>
-        `;
-  });
-}
-
-function removePhoto(index) {
-  photos.splice(index, 1);
-
-  renderPhotos();
+    photoModal.style.display = "none";
 }
 
 function confirmCreate() {
@@ -961,4 +1049,6 @@ function maskEmail(email) {
   return (newemail = first + middle + last);
 }
 
-/*  RESERVATION */
+
+
+

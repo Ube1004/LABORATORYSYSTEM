@@ -1,3 +1,4 @@
+
 /* =========================================================
    GLOBAL RESET
 ========================================================= */
@@ -1275,7 +1276,7 @@ table input {
     font-weight: 600;
 }
 
-#reader {
+#camera {
     display: block;
 
     width: min(650px, 100%);
@@ -3316,8 +3317,6 @@ table td input {
     }
 }
 
-
-/*NEW TEsT*/
 /* =========================================
     Online Forms
    ========================================= */
@@ -3558,5 +3557,1622 @@ table td input {
 
     .table-title {
         font-size: 23px;
+    }
+}
+
+/* =========================================
+   BREAKAGE FORM MODAL
+   ========================================= */
+
+#breakageForm.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 25px 15px;
+    box-sizing: border-box;
+}
+
+/* Show modal when activated by JavaScript */
+#breakageForm.modal.show {
+    display: block;
+}
+
+/* =========================================
+   MODAL CONTENT
+   ========================================= */
+
+#breakageForm .modal-content.large-form {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    color: #26352a;
+    font-family: Arial, sans-serif;
+}
+
+/* Close button */
+
+#breakageForm .close {
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    font-size: 32px;
+    font-weight: normal;
+    color: #555;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+#breakageForm .close:hover {
+    color: #b42318;
+}
+
+/* =========================================
+   FORM HEADER
+   ========================================= */
+
+#breakageForm .form-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #276738;
+}
+
+#breakageForm .form-logo {
+    display: block;
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+#breakageForm .form-header h2,
+#breakageForm .form-header h3,
+#breakageForm .form-header h4 {
+    margin: 5px 0;
+    color: #245b32;
+    line-height: 1.4;
+}
+
+#breakageForm .form-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+#breakageForm .form-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#breakageForm .form-header h4 {
+    margin-top: 12px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   FORM ROW AND COLUMNS
+   ========================================= */
+
+#breakageForm form {
+    width: 100%;
+}
+
+#breakageForm .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px;
+    align-items: start;
+    margin-bottom: 25px;
+}
+
+#breakageForm .col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Labels */
+
+#breakageForm .col label {
+    display: block;
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #245b32;
+    line-height: 1.5;
+}
+
+/* Input fields */
+
+#breakageForm .col input {
+    display: block;
+    width: 100%;
+    height: 43px;
+    padding: 0 12px;
+    margin: 0 0 17px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 7px;
+    background: #fbfdfb;
+    font-family: inherit;
+    font-size: 13px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#breakageForm input::placeholder {
+    color: #91a894;
+    opacity: 1;
+}
+
+#breakageForm input:focus {
+    border-color: #328348;
+    box-shadow: 0 0 0 3px rgba(50, 131, 72, 0.12);
+}
+
+/* =========================================
+   GROUP MEMBERS
+   ========================================= */
+
+#breakageForm form > h4 {
+    margin: 25px 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d9e7db;
+    color: #245b32;
+    font-size: 16px;
+}
+
+#breakageForm .members {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    margin-bottom: 30px;
+}
+
+#breakageForm .members input {
+    width: 100%;
+    height: 42px;
+    min-width: 0;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 7px;
+    background: #fbfdfb;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+#breakageForm .members input:focus {
+    border-color: #328348;
+    box-shadow: 0 0 0 3px rgba(50, 131, 72, 0.12);
+}
+
+/* =========================================
+   BREAKAGE TABLE
+   ========================================= */
+
+#breakageForm .breakage-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 20px 0 30px;
+}
+
+#breakageForm .breakage-table th {
+    padding: 12px 8px;
+    background: #276738;
+    color: #ffffff;
+    border: 1px solid #276738;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    overflow-wrap: break-word;
+}
+
+#breakageForm .breakage-table td {
+    padding: 8px 5px;
+    border: 1px solid #d4e2d6;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#breakageForm .breakage-table tbody tr:nth-child(even),
+#breakageForm .breakage-table tr:nth-child(even) {
+    background: #f7faf7;
+}
+
+/* Table column widths */
+
+#breakageForm .breakage-table th:nth-child(1) {
+    width: 10%;
+}
+
+#breakageForm .breakage-table th:nth-child(2) {
+    width: 27%;
+}
+
+#breakageForm .breakage-table th:nth-child(3) {
+    width: 23%;
+}
+
+#breakageForm .breakage-table th:nth-child(4) {
+    width: 18%;
+}
+
+#breakageForm .breakage-table th:nth-child(5) {
+    width: 22%;
+}
+
+/* Table inputs */
+
+#breakageForm .breakage-table input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #cbdacD;
+    border-radius: 5px;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+}
+
+#breakageForm .breakage-table input:focus {
+    border-color: #328348;
+}
+
+/* =========================================
+   SIGNATURE SECTION
+   ========================================= */
+
+#breakageForm .signatures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+    margin: 35px 0;
+}
+
+#breakageForm .signatures > div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#breakageForm .signatures p {
+    margin: 0 0 25px;
+    color: #245b32;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#breakageForm .signatures input {
+    width: 100%;
+    height: 40px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #777;
+    border-radius: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+#breakageForm .signatures input:focus {
+    border-bottom: 2px solid #328348;
+    box-shadow: none;
+}
+
+#breakageForm .signatures small {
+    margin-top: 8px;
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* =========================================
+   SUBMIT BUTTON
+   ========================================= */
+
+#breakageForm form > button[type="submit"] {
+    display: block;
+    width: auto;
+    min-height: 36px;
+    margin: 15px 0 0 auto;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #276738;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#breakageForm form > button[type="submit"]:hover {
+    background: #1d512b;
+}
+
+#breakageForm form > button[type="submit"]:active {
+    transform: scale(0.99);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 650px) {
+    #breakageForm.modal {
+        padding: 10px;
+    }
+
+    #breakageForm .modal-content.large-form {
+        padding: 30px 18px;
+    }
+
+    #breakageForm .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #breakageForm .members {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #breakageForm .signatures {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    #breakageForm .form-header h2 {
+        font-size: 16px;
+    }
+
+    #breakageForm .form-header h3 {
+        font-size: 14px;
+    }
+
+    #breakageForm .form-header h4 {
+        font-size: 16px;
+    }
+
+    #breakageForm .breakage-table {
+        table-layout: auto;
+        min-width: 600px;
+    }
+
+    #breakageForm form {
+        overflow-wrap: break-word;
+    }
+
+    #breakageForm .breakage-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* =========================================
+   REQUISITION FORM MODAL
+   ========================================= */
+
+#requisitionForm.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 25px 15px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* Modal content */
+
+#requisitionForm .modal-content.form-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    color: #26352a;
+    font-family: Arial, sans-serif;
+}
+
+/* Close button */
+
+#requisitionForm .close {
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    font-size: 32px;
+    line-height: 1;
+    color: #555555;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#requisitionForm .close:hover {
+    color: #b42318;
+}
+
+/* =========================================
+   FORM HEADER
+   ========================================= */
+
+#requisitionForm .form-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #276738;
+}
+
+#requisitionForm .form-logo {
+    display: block;
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+#requisitionForm .form-header h2,
+#requisitionForm .form-header h3,
+#requisitionForm .form-header h4 {
+    margin: 5px 0;
+    color: #245b32;
+    line-height: 1.4;
+}
+
+#requisitionForm .form-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+#requisitionForm .form-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#requisitionForm .form-header h4 {
+    margin-top: 12px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   FORM LAYOUT
+   ========================================= */
+
+#requisitionForm form {
+    width: 100%;
+}
+
+#requisitionForm .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px;
+    align-items: start;
+    margin-bottom: 5px;
+}
+
+#requisitionForm .col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin-bottom: 17px;
+}
+
+/* Labels */
+
+#requisitionForm .col label {
+    display: block;
+    margin: 0 0 8px;
+    color: #245b32;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Inputs */
+
+#requisitionForm .col input,
+#requisitionForm .members input {
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 7px;
+    background: #fbfdfb;
+    color: #333333;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#requisitionForm input::placeholder {
+    color: #91a894;
+    opacity: 1;
+}
+
+#requisitionForm input:focus {
+    border-color: #328348;
+    box-shadow: 0 0 0 3px rgba(50, 131, 72, 0.12);
+}
+
+/* =========================================
+   GROUP MEMBERS
+   ========================================= */
+
+#requisitionForm .members {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    margin: 5px 0 30px;
+}
+
+#requisitionForm form > .col:has(label) {
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   REQUISITION TABLE
+   ========================================= */
+
+#requisitionForm table {
+    width: 100%;
+    margin: 20px 0 30px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border: 1px solid #d4e2d6;
+}
+
+#requisitionForm table th {
+    padding: 13px 10px;
+    background: #276738;
+    color: #ffffff;
+    border: 1px solid #276738;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+}
+
+#requisitionForm table td {
+    padding: 8px;
+    border: 1px solid #d4e2d6;
+    vertical-align: middle;
+}
+
+#requisitionForm table tbody tr:nth-child(even) {
+    background: #f7faf7;
+}
+
+/* Table column sizing */
+
+#requisitionForm table th:nth-child(1) {
+    width: 15%;
+}
+
+#requisitionForm table th:nth-child(2) {
+    width: 50%;
+}
+
+#requisitionForm table th:nth-child(3) {
+    width: 35%;
+}
+
+/* Table inputs */
+
+#requisitionForm table input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 5px 8px;
+    box-sizing: border-box;
+    border: 1px solid #cbdacd;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #333333;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+#requisitionForm table input:focus {
+    border-color: #328348;
+}
+
+/* =========================================
+   BOTTOM APPROVAL FIELDS
+   ========================================= */
+
+#requisitionForm .members ~ .col {
+    margin-bottom: 20px;
+}
+
+/* Style the three approval fields as a row */
+#requisitionForm .members ~ .col:nth-of-type(1) {
+    margin-top: 0;
+}
+
+/* =========================================
+   SUBMIT BUTTON
+   ========================================= */
+
+#requisitionForm form > button[type="submit"] {
+    display: block;
+    width: auto;
+    min-height: 36px;
+    margin: 15px 0 0 auto;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #276738;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#requisitionForm form > button[type="submit"]:hover {
+    background: #1d512b;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 650px) {
+    #requisitionForm.modal {
+        padding: 10px;
+    }
+
+    #requisitionForm .modal-content.form-container {
+        padding: 30px 18px;
+    }
+
+    #requisitionForm .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #requisitionForm .members {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #requisitionForm .form-header h2 {
+        font-size: 16px;
+    }
+
+    #requisitionForm .form-header h3 {
+        font-size: 14px;
+    }
+
+    #requisitionForm .form-header h4 {
+        font-size: 16px;
+    }
+
+    #requisitionForm table {
+        min-width: 520px;
+    }
+
+    #requisitionForm form {
+        overflow-x: auto;
+    }
+}
+/* =========================================
+   REQUISITION TABLE - INPUT BOX DESIGN
+   ========================================= */
+
+#requisitionForm table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    margin: 20px 0 30px;
+    border: none;
+    border-radius: 9px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+/* Green table headers */
+
+#requisitionForm table thead th {
+    background: #347c40;
+    color: #ffffff;
+    padding: 13px 10px;
+    height: 38px;
+    border: none;
+    border-right: 1px solid #d4e2d6;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+#requisitionForm table thead th:last-child {
+    border-right: none;
+}
+
+/* Column widths */
+
+#requisitionForm table th:nth-child(1),
+#requisitionForm table td:nth-child(1) {
+    width: 32%;
+}
+
+#requisitionForm table th:nth-child(2),
+#requisitionForm table td:nth-child(2) {
+    width: 37%;
+}
+
+#requisitionForm table th:nth-child(3),
+#requisitionForm table td:nth-child(3) {
+    width: 31%;
+}
+
+/* Table rows and cells */
+
+#requisitionForm table tbody td {
+    padding: 10px;
+    height: 48px;
+    border: none;
+    border-bottom: 1px solid #e0e8e1;
+    border-right: 1px solid #e0e8e1;
+    background: #ffffff;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+#requisitionForm table tbody td:last-child {
+    border-right: none;
+}
+
+#requisitionForm table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Input boxes inside the table */
+
+#requisitionForm table tbody td input {
+    display: block;
+    width: 100%;
+    height: 28px;
+    margin: 0;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    border: 1px solid #c9e1cc;
+    border-radius: 4px;
+    background: #fbfdfb;
+    color: #333333;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    outline: none;
+    box-shadow: none;
+    transition: border-color 0.2s ease,
+                background-color 0.2s ease;
+}
+
+/* Focus effect */
+
+#requisitionForm table tbody td input:focus {
+    border-color: #347c40;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(52, 124, 64, 0.1);
+}
+
+/* Remove number input spinner where desired */
+
+#requisitionForm table tbody td input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+#requisitionForm table tbody td input[type="number"]::-webkit-inner-spin-button,
+#requisitionForm table tbody td input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Mobile responsiveness */
+
+@media (max-width: 600px) {
+    #requisitionForm table {
+        min-width: 500px;
+    }
+
+    #requisitionForm .modal-content.form-container {
+        overflow-x: auto;
+    }
+}
+
+/* =========================================
+   RESERVATION FORM MODAL
+   ========================================= */
+
+#reservationForm.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 25px 15px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* Modal content */
+
+#reservationForm .modal-content.form-container {
+    position: relative;
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    color: #26352a;
+    font-family: Arial, sans-serif;
+}
+
+/* Close button */
+
+#reservationForm .close {
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    font-size: 32px;
+    line-height: 1;
+    color: #555555;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#reservationForm .close:hover {
+    color: #b42318;
+}
+
+/* =========================================
+   FORM HEADER
+   ========================================= */
+
+#reservationForm .form-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #276738;
+}
+
+#reservationForm .form-logo {
+    display: block;
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+#reservationForm .form-header h2,
+#reservationForm .form-header h3,
+#reservationForm .form-header h4 {
+    margin: 5px 0;
+    color: #245b32;
+    line-height: 1.4;
+}
+
+#reservationForm .form-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+#reservationForm .form-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#reservationForm .form-header h4 {
+    margin-top: 12px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   FORM INPUTS AND LAYOUT
+   ========================================= */
+
+#reservationForm form {
+    width: 100%;
+}
+
+#reservationForm .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px;
+    align-items: start;
+    margin-bottom: 5px;
+}
+
+#reservationForm .col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+
+#reservationForm .col label {
+    display: block;
+    margin: 0 0 8px;
+    color: #245b32;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Input boxes */
+
+#reservationForm .col input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 7px;
+    background: #fbfdfb;
+    color: #333333;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#reservationForm input::placeholder {
+    color: #91a894;
+    opacity: 1;
+}
+
+#reservationForm input:focus {
+    border-color: #328348;
+    box-shadow: 0 0 0 3px rgba(50, 131, 72, 0.12);
+}
+
+/* =========================================
+   RESERVATION TABLE
+   ========================================= */
+
+#reservationForm table {
+    width: 100%;
+    margin: 10px 0 30px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    border: none;
+    border-radius: 9px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+/* Green table headers */
+
+#reservationForm table thead th {
+    padding: 12px 8px;
+    background: #347c40;
+    color: #ffffff;
+    border-right: 1px solid #d4e2d6;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    vertical-align: middle;
+    overflow-wrap: break-word;
+}
+
+#reservationForm table thead th:last-child {
+    border-right: none;
+}
+
+/* Column widths */
+
+#reservationForm table th:nth-child(1) {
+    width: 16%;
+}
+
+#reservationForm table th:nth-child(2) {
+    width: 13%;
+}
+
+#reservationForm table th:nth-child(3) {
+    width: 15%;
+}
+
+#reservationForm table th:nth-child(4) {
+    width: 17%;
+}
+
+#reservationForm table th:nth-child(5) {
+    width: 39%;
+}
+
+/* Table body cells */
+
+#reservationForm table tbody td {
+    padding: 10px;
+    border-right: 1px solid #e0e8e1;
+    border-bottom: 1px solid #e0e8e1;
+    background: #ffffff;
+    vertical-align: middle;
+}
+
+#reservationForm table tbody td:last-child {
+    border-right: none;
+}
+
+/* Input boxes inside the table */
+
+#reservationForm table tbody td input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    border: 1px solid #c9e1cc;
+    border-radius: 4px;
+    background: #fbfdfb;
+    color: #333333;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+}
+
+#reservationForm table tbody td input:focus {
+    border-color: #347c40;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(52, 124, 64, 0.1);
+}
+
+/* =========================================
+   SUBMIT BUTTON
+   ========================================= */
+
+#reservationForm form > button[type="submit"] {
+    display: block;
+    width: auto;
+    min-height: 36px;
+    margin: 15px 0 0 auto;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #276738;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#reservationForm form > button[type="submit"]:hover {
+    background: #1d512b;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 650px) {
+    #reservationForm.modal {
+        padding: 10px;
+    }
+
+    #reservationForm .modal-content.form-container {
+        padding: 30px 18px;
+    }
+
+    #reservationForm .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #reservationForm .form-header h2 {
+        font-size: 16px;
+    }
+
+    #reservationForm .form-header h3 {
+        font-size: 14px;
+    }
+
+    #reservationForm .form-header h4 {
+        font-size: 16px;
+    }
+
+    #reservationForm table {
+        min-width: 650px;
+    }
+
+    #reservationForm form {
+        overflow-x: auto;
+    }
+}
+
+/* =========================================
+   BORROW FORM MODAL
+   ========================================= */
+
+#borrowForm.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px 15px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+#borrowForm .modal-content.large-form {
+    position: relative;
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    color: #26352a;
+    font-family: Arial, sans-serif;
+}
+
+/* Close button */
+
+#borrowForm .close {
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    font-size: 32px;
+    line-height: 1;
+    color: #555555;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#borrowForm .close:hover {
+    color: #b42318;
+}
+
+/* =========================================
+   FORM HEADER
+   ========================================= */
+
+#borrowForm .form-header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #276738;
+}
+
+#borrowForm .form-logo {
+    display: block;
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+#borrowForm .form-header h2,
+#borrowForm .form-header h3,
+#borrowForm .form-header h4 {
+    margin: 5px 0;
+    color: #245b32;
+    line-height: 1.4;
+}
+
+#borrowForm .form-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+#borrowForm .form-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#borrowForm .form-header h4 {
+    margin-top: 12px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   FORM LAYOUT
+   ========================================= */
+
+#borrowForm .col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin-bottom: 17px;
+}
+
+#borrowForm .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 0;
+}
+
+#borrowForm .col label {
+    display: block;
+    margin-bottom: 8px;
+    color: #245b32;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* =========================================
+   INPUT FIELDS
+   ========================================= */
+
+#borrowForm .col > input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 7px;
+    background: #fbfdfb;
+    color: #333333;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#borrowForm input::placeholder {
+    color: #91a894;
+    opacity: 1;
+}
+
+#borrowForm input:focus {
+    border-color: #328348;
+    box-shadow: 0 0 0 3px rgba(50, 131, 72, 0.12);
+}
+
+/* Date and time fields */
+
+#borrowForm input[type="date"],
+#borrowForm input[type="time"] {
+    color: #333333;
+    cursor: pointer;
+}
+
+/* =========================================
+   ITEM BORROWING BOX
+   ========================================= */
+
+#borrowForm .item-box {
+    width: 100%;
+    min-height: 100px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #b9d9bd;
+    border-radius: 8px;
+    background: #fbfdfb;
+    color: #333333;
+    font-size: 13px;
+}
+
+#borrowForm .item-box:empty::before {
+    content: "Scanned items will appear here...";
+    display: block;
+    color: #91a894;
+    font-style: italic;
+}
+
+/* =========================================
+   BUTTON GROUP
+   ========================================= */
+
+#borrowForm .button-group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* Scan Items button */
+
+#borrowForm .scan-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #276738;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#borrowForm .scan-btn:hover {
+    background: #1d512b;
+}
+
+/* Confirm Borrow button */
+
+#borrowForm .confirm-btn {
+    display: block;
+    width: auto;
+    min-height: 38px;
+    margin: 15px 0 0 auto;
+    padding: 9px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #347c40;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#borrowForm .confirm-btn:hover {
+    background: #1d512b;
+}
+
+/* =========================================
+   CAMERA FORM
+   ========================================= */
+
+#cameraForm.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+#cameraForm .modal-content.form-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+#cameraForm .close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 30px;
+    color: #555555;
+    cursor: pointer;
+}
+
+/* QR scanner display */
+
+#cameraForm #reader {
+    width: 100%;
+    max-width: 500px;
+    margin: 15px auto 20px;
+    overflow: hidden;
+    border: 1px solid #d4e2d6;
+    border-radius: 8px;
+}
+
+#cameraForm #reader video {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+#cameraForm .scan-btn {
+    display: block;
+    margin: 15px auto 0;
+}
+
+/* =========================================
+   QR SCANNER MODAL
+   ========================================= */
+
+#qrModal.qr-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+#qrModal .qr-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: #ffffff;
+    text-align: center;
+}
+
+#qrModal .qr-content h3 {
+    margin: 0 0 20px;
+    color: #245b32;
+    font-size: 18px;
+}
+
+#qrModal .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    color: #555555;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+#qrModal .close-btn:hover {
+    color: #b42318;
+}
+
+/* =========================================
+   NOTICE POPOVER
+   ========================================= */
+
+#mydiv[popover] {
+    width: min(350px, calc(100vw - 40px));
+    padding: 22px;
+    box-sizing: border-box;
+    border: 1px solid #d4e2d6;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #333333;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    font-family: Arial, sans-serif;
+}
+
+#mydiv h2 {
+    margin: 0 0 12px;
+    color: #276738;
+    font-size: 20px;
+}
+
+#mydiv hr {
+    border: none;
+    border-top: 1px solid #d4e2d6;
+}
+
+#mydiv p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#mydiv button {
+    display: block;
+    margin: 15px 0 0 auto;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #276738;
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+#mydiv button:hover {
+    background: #1d512b;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 650px) {
+    #borrowForm.modal {
+        padding: 10px;
+    }
+
+    #borrowForm .modal-content.large-form {
+        padding: 30px 18px;
+    }
+
+    #borrowForm .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #borrowForm .form-header h2 {
+        font-size: 16px;
+    }
+
+    #borrowForm .form-header h3 {
+        font-size: 14px;
+    }
+
+    #borrowForm .form-header h4 {
+        font-size: 16px;
+    }
+
+    #borrowForm .button-group {
+        justify-content: stretch;
+    }
+
+    #borrowForm .button-group .scan-btn {
+        width: 100%;
+    }
+
+    #cameraForm .modal-content.form-container {
+        padding: 25px 15px;
+    }
+
+    #qrModal .qr-content {
+        padding: 25px 18px;
     }
 }
