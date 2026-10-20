@@ -9,7 +9,7 @@ powershell:
 
 
 git add .
-git commit -m "Perfectionism"
+git commit -m "Somethins"
 git pull --no-rebase origin main
 git push
 

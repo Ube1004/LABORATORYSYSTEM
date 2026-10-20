@@ -966,6 +966,14 @@ table input {
    BREAKAGE TABLE
 ========================================================= */
 
+.add-member-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    width: auto;
+    min-width: 0;
+    height: auto;
+}
+
 .breakage-table {
     width: 100%;
 

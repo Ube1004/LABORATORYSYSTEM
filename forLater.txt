@@ -39,3 +39,6 @@ def save():
     /END o' FLASK/
 
 / END FORM/
+
+/ADD INPUT/
+<button onclick="addInput(divID, type, name, id, placeholder, size = "315px",thenWhere)"></button>

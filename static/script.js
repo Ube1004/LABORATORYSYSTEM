@@ -1145,14 +1145,14 @@ function maskEmail(email) {
    ADD INPUT (dynamic item fields)
    ========================================================= */
 
-function addInput(divID, type, name, id, placeholder, thenWhere) {
+function addInput(divID, type, name, id, placeholder, size = "315px",thenWhere) {
   const container = document.getElementById(divID);
 
   const input = document.createElement("input");
   input.type = type;
   input.name = name;
   input.id = id + (container.querySelectorAll("input").length + 1);
-  input.style.width = "315px";
+  input.style.width = size;
   input.placeholder =
     placeholder + (container.querySelectorAll("input").length + 1);
 
