@@ -1152,12 +1152,12 @@ function addInput(divID, type, name, id, placeholder, thenWhere) {
   input.type = type;
   input.name = name;
   input.id = id + (container.querySelectorAll("input").length + 1);
-  input.style.width = "80px";
+  input.style.width = "315px";
   input.placeholder =
     placeholder + (container.querySelectorAll("input").length + 1);
 
   container.appendChild(input);
-  container.appendChild(document.createElement("br"));
+  container.appendChild(document.createElement(""));
   if (thenWhere) {
     thenWhere();
   }
@@ -1372,3 +1372,44 @@ function printSummary() {
 }
 
 // end of reservation
+
+
+// forms
+function openMoreForm(button) {
+    const reservations = JSON.parse(button.dataset.reservations);
+    const content = document.getElementById("moreContent");
+
+    content.innerHTML = "";
+
+    reservations.forEach(row => {
+        const section = document.createElement("div");
+
+        const fields = [
+            ["Activity", row.activity],
+            ["Objective", row.objective],
+            ["Date Filed", row.dateFiled],
+            ["Year & Section", row.yearAndSection],
+            ["Number of Students", row.numberOfStudent],
+            ["Approved By", row.ApprovedBy],
+            ["Reservation ID", row.reservationID]
+        ];
+
+        fields.forEach(([label, value]) => {
+            const p = document.createElement("p");
+            const strong = document.createElement("strong");
+
+            strong.textContent = label + ": ";
+            p.appendChild(strong);
+            p.appendChild(
+                document.createTextNode(value ?? "")
+            );
+
+            section.appendChild(p);
+        });
+
+        section.appendChild(document.createElement("hr"));
+        content.appendChild(section);
+    });
+
+    openForm("moreForm");
+}

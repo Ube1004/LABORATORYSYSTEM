@@ -63,53 +63,34 @@
             </thead>
 
             <tbody>
-                {% for row in data %}
-                <tr class="data-row">
-                    <td>{{ row["dateOfUse"] }}</td>
-                    <td>{{ row["time"] }}</td>
-                    <td>{{ row["activity"] }}</td>
-                    <td>{{ row["teacher"] }}</td>
-                    <td>{{ row["ItemID"] }}</td>
+    {% for group in data %}
+    <tr class="data-row">
+        <td>{{ group["dateOfUse"] }}</td>
+        <td>{{ group["time"] }}</td>
+        <td>{{ group["reservations"][0]["activity"] }}</td>
+        <td>{{ group["teacher"] }}</td>
 
-                    <td>
-                        <details class="reservation-more">
-                            <summary>More</summary>
+        <td>
+    {% for row in group["reservations"] %}
+        <div>
+            {{ row["ItemType"] }}
+        </div>
+    {% endfor %}
+</td>
 
-                            <div class="more-content">
-                                <p>
-                                    <strong>Objective:</strong>
-                                    {{ row["objective"] }}
-                                </p>
-
-                                <p>
-                                    <strong>Date Filed:</strong>
-                                    {{ row["dateFiled"] }}
-                                </p>
-
-                                <p>
-                                    <strong>Year &amp; Section:</strong>
-                                    {{ row["yearAndSection"] }}
-                                </p>
-
-                                <p>
-                                    <strong>Number of Students:</strong>
-                                    {{ row["numberOfStudent"] }}
-                                </p>
-
-                                <p>
-                                    <strong>Approved By:</strong>
-                                    {{ row["ApprovedBy"] }}
-                                </p>
-
-                                <p>
-                                    <strong>Reservation ID:</strong>
-                                    {{ row["reservationID"] }}
-                                </p>
-                            </div>
-                        </details>
-                    </td>
-                </tr>
-                {% endfor %}
+       
+  <td>
+    <button
+        type="button"
+        onclick="openMoreForm(this)"
+        data-reservations='{{ group["reservations"] | tojson | forceescape }}'>
+        More
+    </button>
+</td>
+</td>
+    </tr>
+    {% endfor %}
+</tbody>
             </tbody>
         </table>
 
@@ -278,6 +259,18 @@
 
     </div>
 
+</div>
+
+<div id="moreForm" class="modal">
+
+    <div class="modal-content">
+    <span class="close" onclick="closeForm('moreForm')">&times;</span>
+        <h3>Reservation Details</h3>
+
+        <div id="moreContent"></div>
+
+        
+    </div>
 </div>
 
 

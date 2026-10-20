@@ -8,12 +8,14 @@ import os
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from pathlib import Path
+from collections import defaultdict
 
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-#TESTING
+#Globarr varr
+
 # ============================================================
 # DATABASE PATH
 # ============================================================
@@ -327,41 +329,34 @@ def analytics():
 def broken():
     conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
-
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT *
+    SELECT Reservation.*, Items.Type AS ItemType
     FROM Reservation
-    ORDER BY dateOfUse ASC, Time ASC;
+    LEFT JOIN Items ON Reservation.ItemID = Items.ItemID
+    ORDER BY Reservation.dateOfUse ASC, Reservation.Time ASC
 """)
 
     rows = cursor.fetchall()
-    
-    conn.close()
+    grouped_data = defaultdict(list)
+
+    for row in rows:
+        key = (row["dateOfUse"], row["Time"], row["teacher"])
+        grouped_data[key].append(dict(row))
 
     datas = []
 
-    for row in rows:
-
+    for (date_of_use, time, teacher), reservations in grouped_data.items():
         datas.append({
-            "reservationID": row[0],
-            "SchoolID": row[1],
-            "ItemID": row[2],
-            "activity": row[3],
-            "objective": row[4],
-            "teacher": row[5],
-            "dateFiled" : row[6],
-            "dateOfUse" : row [7],
-            "ApprovedBy": row [8],
-            "time": row[9],
-            "yearAndSection":row[10],
-            "numberOfStudent":row[11],
-
+            "dateOfUse": date_of_use,
+            "time": time,
+            "teacher": teacher,
+            "reservations": reservations
         })
 
-
-    return render_template('broken.html', data=datas)
+    return render_template("broken.html", data=datas)
+   
 
 
 
