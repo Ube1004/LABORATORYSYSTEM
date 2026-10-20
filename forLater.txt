@@ -19,7 +19,7 @@ onclick="addInput('text', 'name[]', 'item', 'PlaceHolder', Function)">
     <button type="submit">Submit</button>
 </form>
 
-/FOR FLASK/
+    /FOR FLASK/
 <form action="/save" method="POST">
     <input type="text" name="name" placeholder="Name">
     <input type="email" name="email" placeholder="Email">
@@ -36,6 +36,6 @@ def save():
     print(email)
 
     return "Form received!"
-/END o' FLASK/
+    /END o' FLASK/
 
 / END FORM/

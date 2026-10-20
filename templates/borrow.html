@@ -51,9 +51,7 @@
     </button>
 
 
-    <button class="menu-btn" onclick="location.href='analytics'">
-        📈 Data Analytics
-    </button>
+
 
 
     <button class="menu-btn" onclick="location.href='documentation'">
@@ -1159,108 +1157,122 @@
         </div>
 
 
-        <form>
 
-            <div class="row">
+<form action="/saveReservation" method="POST">
 
-                <div class="col">
+    <div class="row">
+        <div class="col">
+            <label>School ID:</label>
+            <input type="text" name="SchoolID" required>
 
-                    <label>Nature of Activity:</label>
+            <label>Nature of Activity:</label>
+            <input
+                id="natureOfActivity"
+                name="activity"
+                type="text"
+                placeholder="Enter nature of activity"
+                required>
+        </div>
 
+        <div class="col">
+            <label>Date Filed:</label>
+            <input
+                id="dateFiled"
+                name="dateFiled"
+                type="date"
+                required>
+        </div>
+    </div>
+
+    <div class="col">
+        <label>Objective:</label>
+        <input
+            id="objectives"
+            name="objective"
+            type="text"
+            placeholder="Enter objective">
+    </div>
+
+    <table border="1" width="100%" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Date of Activity</th>
+                <th>Time</th>
+                <th>Year &amp; Section</th>
+                <th>Number of Students</th>
+                <th>Materials / Equipment Needed</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <input type="date" name="dateOfUse" required>
+                </td>
+
+                <td>
+                    <input type="time" name="time" required>
+                </td>
+
+                <td>
                     <input
-                        id="natureOfCActivity"
+                        id="yearAndSection"
+                        name="yearAndSection"
                         type="text"
-                        placeholder="Enter nature of activity">
+                        required>
+                </td>
 
-                </div>
+                <td>
+                    <input
+                        type="number"
+                        name="numberOfStudent"
+                        min="1"
+                        required>
+                </td>
 
+                <td>
+                    <div id="numOfItems">
+                        <input
+                            type="text"
+                            name="item[]"
+                            placeholder="Enter item code"
+                            required>
+                    </div>
 
-                <div class="col">
+                    <button
+                        type="button"
+                        onclick="addInput('numOfItems', 'text', 'item[]', 'reservationItemNeeded', 'Item ', test1)">
+                        + Add
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-                    <label>Date Filed:</label>
+    <div class="col">
+        <label>Teacher in Charge:</label>
+        <input
+            id="teacherInCharge"
+            name="teacher"
+            type="text"
+            placeholder="Enter teacher's name"
+            required>
+    </div>
 
-                    <input 
-                        id="dateFiled"
-                        type="date">
+    <div class="col">
+        <label>Approved By:</label>
+        <input
+            id="approvedBy"
+            name="ApprovedBy"
+            type="text"
+            placeholder="Enter approving person's name"
+            required>
+    </div>
 
-                </div>
+    <button type="submit">Submit Reservation</button>
 
-            </div>
+</form>
 
-
-            <div class="col">
-
-                <label>Objective:</label>
-
-                <input
-                    type="text"
-                    id="objetives"
-                    placeholder="Enter objective">
-
-            </div>
-
-
-            <table border="1" width="100%" cellspacing="0" cellpadding="5">
-
-                <thead>
-
-                    <tr>
-                        <th>Date of Activity</th>
-                        <th>Time</th>
-                        <th>Yr. & Section</th>
-                        <th>Number of Students</th>
-                        <th>Materials/Equipment Needed</th>
-                    </tr>
-
-                </thead>
-                <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <div id="inputs"></div>
-
-                            <button type="button"
-                                onclick="addInput('text', 'name[]', 'item', 'Grp', test1)">
-                                + Add
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-
-
-            </table>
-
-
-            <div class="col">
-
-                <label>Teacher in Charge:</label>
-
-                <input
-                    id="teacherInCharge"
-                    type="text"
-                    placeholder="Enter teacher's name">
-
-            </div>
-
-
-            <div class="col">
-
-                <label>Approved by:</label>
-
-                <input
-                    id="approvedBy"
-                    type="text"
-                    placeholder="Enter approving person">
-
-            </div>
-
-
-            <button type="submit">
-                Submit Reservation
-            </button>
-
-        </form>
 
     </div>
 

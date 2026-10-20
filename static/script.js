@@ -107,58 +107,62 @@ function manualAdd() {
 }
 
 // QR SCAN
-function startScanner() {
-  openForm('cameraForm');
-  scanner = new Html5Qrcode("reader");
-  
-  scanner
-    .start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: 400,
-      },
-      (decodedText) => {
-        console.log("QR CODE:", decodedText);
+// QR SCAN
+async function startScanner() {
+    if (scanner) return; // Prevent opening multiple scanners
 
-        if (!codes.includes(decodedText)) {
-          codes.push(decodedText);
+    openForm('cameraForm');
 
-          console.log("CODES:", codes);
-        }
-      },
-      (errorMessage) => {
-        // Ignore failed scans
-      },
-    )
-    .catch((error) => {
-      console.log("Camera error:", error);
-    });
-}
-function stopScanner(afterStop) {
-  if (codes.length === 0) {
-    alert("Please scan at least one item first.");
-    return;
-  }
+    scanner = new Html5Qrcode("reader");
 
-  if (scanner) {
-    closeForm('cameraForm')
-    scanner
-      .stop()
-      .then(() => {
-        scanner.clear();
+    try {
+        await scanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 400 },
+            (decodedText) => {
+                const code = decodedText.trim();
+
+                if (code && !codes.includes(code)) {
+                    codes.push(code);
+                    console.log("CODES:", codes);
+                }
+            },
+            () => {}
+        );
+
+        console.log("Scanner started");
+    } catch (error) {
+        console.error("Camera error:", error);
         scanner = null;
+        closeForm('cameraForm');
+        alert("Could not start the camera.");
+    }
+}
 
-        console.log("Scanner stopped");
 
+// STOP QR SCANNER
+async function stopScanner(afterStop) {
+    if (scanner) {
+        try {
+            if (scanner.isScanning) {
+                await scanner.stop();
+            }
+
+            scanner.clear();
+            scanner = null;
+
+            console.log("Scanner stopped");
+        } catch (error) {
+            console.error("Error stopping scanner:", error);
+        }
+    }
+
+    closeForm('cameraForm');
+
+    // Process scanned items only if there are codes
+    if (codes.length > 0 && typeof afterStop === "function") {
         afterStop(codes);
-      })
-      .catch((error) => {
-        console.log("Error stopping scanner:", error);
-      });
-  } else {
-    afterStop(codes);
-  }
+    }
 }
 
 
@@ -612,13 +616,33 @@ if (preview) {
 }
 
 // Open camera
-navigator.mediaDevices
-  .getUserMedia({
-    video: true,
-  })
-  .then((stream) => {
-    video.srcObject = stream;
-  });
+// Open camera only when called
+let cameraStream = null;
+
+async function openCamera() {
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: true
+        });
+
+        video.srcObject = cameraStream;
+        await video.play();
+
+    } catch (error) {
+        console.error("Camera error:", error);
+        alert("Could not open the camera.");
+    }
+}
+
+// Stop the camera
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    video.srcObject = null;
+}
 
 function takePhoto() {
   const ctx = canvas.getContext("2d");
@@ -1020,21 +1044,23 @@ function searchInventory() {
 }
 
 /*SEARCH FOR LOG*/
-
 function searchLog() {
-  let search = document.getElementById("logSearch").value.toLowerCase();
+    const search = document.getElementById("logSearch").value.toLowerCase().trim();
 
-  let rows = document.querySelectorAll("#returnTable tr");
+    const rows = document.querySelectorAll(
+        "#returnTableMain tbody tr.data-row"
+    );
 
-  rows.forEach((row) => {
-    let text = row.textContent.toLowerCase();
+    rows.forEach((row, index) => {
+        const text = row.textContent.toLowerCase();
+        const matches = text.includes(search);
 
-    if (text.includes(search)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
+        if (search !== "") {
+            row.hidden = !matches;
+        } else {
+            row.hidden = index >= 5;
+        }
+    });
 }
 /* MASK EMAIL */
 
@@ -1048,8 +1074,8 @@ function maskEmail(email) {
 
 
 /* add Input */
-function addInput(type, name, id, placeholder, thenWhere) {
-    const container = document.getElementById("inputs");
+function addInput(divID,type, name, id, placeholder, thenWhere) {
+    const container = document.getElementById(divID);
 
     const input = document.createElement("input");
     input.type = type;
@@ -1064,36 +1090,48 @@ function addInput(type, name, id, placeholder, thenWhere) {
       thenWhere();
     }
 }
-function hideExtraRows() {
-    const rows = document.querySelectorAll("#tableReservation tbody tr.data-row");
-    const button = document.getElementById("seeAllBtn");
+// returning hidden rows
 
-    console.log("Rows found:", rows.length);
+// Hide extra rows when the page loads
+document.addEventListener("DOMContentLoaded", function () {
+    hideExtraRows("returnTableMain", "seeAllRtrnBtn", 10);
+    hideExtraRows("tableReservation", "seeAllBtn", 5);
+});
+
+function hideExtraRows(tableId, buttonId, limit = 5) {
+    const table = document.getElementById(tableId);
+    const button = document.getElementById(buttonId);
+
+    if (!table || !button) {
+        console.log("Table or button not found:", tableId, buttonId);
+        return;
+    }
+
+    const rows = table.querySelectorAll("tbody tr.data-row");
+
+    console.log(tableId, "rows found:", rows.length);
 
     rows.forEach((row, index) => {
-        row.hidden = index >= 5;
+        row.hidden = index >= limit;
     });
 
-    if (button) {
-        button.textContent = "See All";
-    }
+    button.hidden = false;
+    button.style.display = "inline-block";
+    button.textContent = "See All";
 }
 
-function seeAll() {
-    const rows = document.querySelectorAll("#tableReservation tbody tr.data-row");
-    const button = document.getElementById("seeAllBtn");
+function seeAll(tableId, buttonId, limit = 5) {
+    const table = document.getElementById(tableId);
+    const button = document.getElementById(buttonId);
 
-    const showingAll = button.textContent === "See All";
+    if (!table || !button) return;
+
+    const rows = table.querySelectorAll("tbody tr.data-row");
+    const showingAll = button.textContent.trim() === "See All";
 
     rows.forEach((row, index) => {
-        row.hidden = !showingAll && index >= 5;
+        row.hidden = !showingAll && index >= limit;
     });
 
     button.textContent = showingAll ? "See Less" : "See All";
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", hideExtraRows);
-} else {
-    hideExtraRows();
 }

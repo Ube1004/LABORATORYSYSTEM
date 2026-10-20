@@ -17,7 +17,7 @@
     <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
     <button class="menu-btn" onclick="location.href='returning'">🔄 Returning</button>
     <button class="menu-btn" onclick="location.href='broken'">📋 Forms</button>
-    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+   
     <button class="menu-btn" onclick="location.href='documentation'">📄 Documentation</button>
     <div class="user-box">
         <p class="name">{{   session['username']   }}</p>
@@ -39,7 +39,7 @@
             <div class="summary-icon">👥</div>
             <div>
                 <h4>Total Borrowers</h4>
-                <h2>{{ Borrower["Total"] }}</h2>
+                <h2>{{ Borrower.Total }}</h2>
                 <p>Total registered borrowers</p>
             </div>
         </div>

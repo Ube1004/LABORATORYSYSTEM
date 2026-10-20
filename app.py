@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import session
 import base64
 import os
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from pathlib import Path
 
@@ -67,6 +68,14 @@ def login():
         "message": "Invalid username or password."
     }), 401
 
+def isLogin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'username' not in session:
+            return render_template('login.html')
+        return func(*args, **kwargs)
+    return wrapper
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -124,6 +133,7 @@ def getItem():
 
 
 @app.route('/borrow')
+@isLogin
 def borrow():
 
     conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -164,12 +174,11 @@ def home():
 
 
 @app.route('/dashboard')
+@isLogin
 def dashboard():
-
-    if 'username' not in session:
-        return render_template('login.html')
-
     
+    
+  
     conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
 
@@ -259,11 +268,13 @@ def dashboard():
 
 
 @app.route('/documentation')
+@isLogin
 def documentation():
     return render_template('documentation.html')
 
 
 @app.route('/analytics')
+@isLogin
 def analytics():
 
     conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -309,7 +320,10 @@ def analytics():
     )
 
 
+##RESERVATION
+
 @app.route('/broken')
+@isLogin
 def broken():
     conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
@@ -317,12 +331,10 @@ def broken():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT * 
-        FROM Reservation
-        ORDER BY dateOfUse
-        DESC;
-        
-    """)
+    SELECT *
+    FROM Reservation
+    ORDER BY dateOfUse ASC, Time ASC;
+""")
 
     rows = cursor.fetchall()
     
@@ -350,6 +362,97 @@ def broken():
 
 
     return render_template('broken.html', data=datas)
+
+@app.route("/saveReservation", methods=["POST"])
+def saveReservation():
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    cursor = conn.cursor()
+
+    try:
+        schoolID = request.form.get("SchoolID", "").strip()
+        activity = request.form.get("activity", "").strip()
+        objective = request.form.get("objective", "").strip()
+        teacher = request.form.get("teacher", "").strip()
+        dateFiled = request.form.get("dateFiled")
+        dateOfUse = request.form.get("dateOfUse")
+        approvedBy = request.form.get("ApprovedBy", "").strip()
+        time = request.form.get("time")
+        yearAndSection = request.form.get("yearAndSection", "").strip()
+        numberOfStudent = request.form.get("numberOfStudent")
+
+        # Get all submitted equipment codes
+        itemCodes = [
+            code.strip()
+            for code in request.form.getlist("item[]")
+            if code.strip()
+        ]
+
+        if not all([
+            schoolID, teacher, approvedBy,
+            dateFiled, dateOfUse, time,
+            yearAndSection, numberOfStudent
+        ]) or not itemCodes:
+            return "Please complete all required fields.", 400
+
+        # Find the corresponding ItemIDs
+        itemIDs = []
+
+        for code in itemCodes:
+            cursor.execute(
+                "SELECT ItemID FROM Items WHERE Code = ?",
+                (code,)
+            )
+
+            result = cursor.fetchone()
+
+            if result is None:
+                conn.rollback()
+                return f"Item code '{code}' was not found.", 400
+
+            itemIDs.append(result[0])
+
+        # Save one reservation row for each item
+        for itemID in itemIDs:
+            cursor.execute("""
+                INSERT INTO Reservation (
+                    SchoolID,
+                    ItemID,
+                    activity,
+                    objective,
+                    teacher,
+                    dateFiled,
+                    dateOfUse,
+                    ApprovedBy,
+                    time,
+                    yearAndSection,
+                    numberOfStudent
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                schoolID,
+                itemID,
+                activity,
+                objective,
+                teacher,
+                dateFiled,
+                dateOfUse,
+                approvedBy,
+                time,
+                yearAndSection,
+                numberOfStudent
+            ))
+
+        conn.commit()
+
+        return broken()
+
+    except sqlite3.Error:
+        conn.rollback()
+        app.logger.exception("Failed to save reservation")
+        return "A database error occurred while saving the reservation.", 500
+
+    finally:
+        conn.close()
 
 
 # ============================================================
@@ -561,6 +664,32 @@ def qr_scan():
 # ============================================================
 
 
+
+def checkStudent(cursor, studentid, name, email, institute, contact):
+    cursor.execute("""
+        SELECT SchoolID
+        FROM Borrower
+        WHERE SchoolID = ?
+    """, (studentid,))
+
+    existing = cursor.fetchone()
+
+    if not existing:
+        cursor.execute("""
+            INSERT INTO Borrower
+            (SchoolID, BorrowerName, Email, Department, Contact)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            studentid,
+            name,
+            email,
+            institute,
+            contact
+        ))
+
+    return True
+
+
 @app.route('/confirmborrow', methods=['POST'])
 def confirm_borrow():
     data = request.get_json(silent=True) or {}
@@ -576,7 +705,7 @@ def confirm_borrow():
     approvedBy = data.get('approvedBy')
     remarks = data.get('remarks')
 
-    # Validate required data before inserting
+    # Validate required data
     if not name or not studentid or not items:
         return jsonify({
             "success": False,
@@ -588,26 +717,17 @@ def confirm_borrow():
     try:
         cursor = db_conn.cursor()
 
-        cursor.execute("""
-            SELECT * FROM Borrower
-            WHERE SchoolID = ?
-        """, (studentid,))
+        
+        checkStudent(
+            cursor,
+            studentid,
+            name,
+            email,
+            institute,
+            contact
+        )
 
-        existing = cursor.fetchone()
-
-        if not existing:
-            cursor.execute("""
-                INSERT INTO Borrower
-                (SchoolID, BorrowerName, Email, Department, Contact)
-                VALUES (?, ?, ?, ?, ?)
-            """, (
-                studentid,
-                name,
-                email,
-                institute,
-                contact
-            ))
-
+        # Save borrowed items
         for item in items:
             cursor.execute("""
                 INSERT INTO Log
@@ -639,6 +759,7 @@ def confirm_borrow():
     except Exception:
         db_conn.rollback()
         app.logger.exception("Error confirming borrow")
+
         return jsonify({
             "success": False,
             "error": "Failed to confirm borrowing."
@@ -654,6 +775,7 @@ def confirm_borrow():
 # ============================================================
 
 @app.route('/returning')
+@isLogin
 def returning():
 
     is_superAdmin = session.get('role') == 'superAdmin'
@@ -687,7 +809,7 @@ def returning():
 
     ORDER BY Log.DateBorrowed
     DESC
-    LIMIT 10;
+
 """
 
     cur.execute(query)

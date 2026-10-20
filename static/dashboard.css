@@ -1780,10 +1780,13 @@ table input {
     }
 
     #camera {
-        width: 100%;
-
-        height: auto;
-    }
+    display: block;
+    width: 100%;
+    max-width: 650px;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}   
 
     .equipment-grid {
         grid-template-columns: 1fr;
@@ -1820,7 +1823,45 @@ table input {
     }
 }
 
+.camera-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+}
 
+#camera {
+    display: block;
+    width: 100%;
+    max-width: 650px;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    margin: 20px auto;
+}
+
+.preview-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 20px auto;
+}
+
+#preview {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
 /* =========================================================
    RESPONSIVE - 500px
 ========================================================= */
@@ -3465,6 +3506,49 @@ table td input {
 
 .table-container:nth-child(1) .records-table {
     min-width: 1150px;
+}
+.reservation-more {
+    position: relative;
+    min-width: 65px;
+}
+
+.reservation-more summary {
+    display: inline-block;
+    padding: 7px 12px;
+    background: #eeeeee;
+    border-radius: 5px;
+    cursor: pointer;
+    list-style: none;
+    text-align: center;
+}
+
+.reservation-more summary::-webkit-details-marker {
+    display: none;
+}
+
+.reservation-more summary::after {
+    content: " ▾";
+}
+
+.reservation-more[open] summary::after {
+    content: " ▴";
+}
+
+.more-content {
+    min-width: 220px;
+    max-width: 300px;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.more-content p {
+    margin: 8px 0;
 }
 
 

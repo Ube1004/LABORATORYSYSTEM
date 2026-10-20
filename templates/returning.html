@@ -21,7 +21,7 @@
     <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
     <button class="menu-btn active" onclick="location.href='returning'">🔄 Returning</button>
     <button class="menu-btn" onclick="location.href='broken'">📋 Forms</button>
-    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+    
     <button class="menu-btn" onclick="location.href='documentation'">📄 Documentation</button>
     
 
@@ -73,9 +73,13 @@
     <h2>Return Records</h2>
 
     <div class="table-container">
-        <table class="return-table">
+    <button id="seeAllRtrnBtn"
+                onclick="seeAll('returnTableMain', 'seeAllRtrnBtn', 10)">
+            See All
+        </button>
+        <table class="return-table" id="returnTableMain">
             <thead>
-                <tr style="background:#f0f0f0;">
+                  <tr style="background:#f0f0f0;">
                     
                     <th>ID</th>
                     <th>Name</th>
@@ -93,7 +97,7 @@
 
             <tbody id="returnTable">
                 {% for row in data %}
-                <tr>
+                <tr class="data-row">
                     
                     <td>{{ row['SchoolID'] }}</td>
                     <td>{{ row['BorrowerName'] }}</td>
@@ -128,8 +132,11 @@
     <!-- TABLE -->
     <div class="welcome-box">
         <h2>Return Records</h2>
-
-        <table style="width:100%; border-collapse: collapse;">
+    <button id="seeAllRtrnBtn"
+                onclick="seeAll('returnTableMain', 'seeAllRtrnBtn', 10)">
+            See All
+        </button>
+        <table id="returnTableMain" style="width:100%; border-collapse: collapse;">
     <thead>
         <tr style="background:#f0f0f0;">
             <th>ID</th>
@@ -147,7 +154,7 @@
 
     <tbody id="returnTable">
         {% for row in data %}
-        <tr>
+        <tr class="data-row">
             <td>{{ row['SchoolID'] }}</td>
             <td>{{ row['BorrowerName'] }}</td>
             <td>{{ row['Email'] }}</td>

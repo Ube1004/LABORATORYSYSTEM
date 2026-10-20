@@ -8,6 +8,6 @@ powershell:
 .\venv\Scripts\Activate.ps1
 
 git add .
-git commit -m "CAMERA, JS, PYTHON BUG FIX REMOVE EMAIL NEW MANUAL BORROW"
+git commit -m "BYPASS SECURED + SEE ALL BUTTON"
 git pull --no-rebase origin main
 git push

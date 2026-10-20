@@ -21,7 +21,7 @@
     <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
     <button class="menu-btn" onclick="location.href='returning'">🔄 Returning</button>
     <button class="menu-btn" onclick="location.href='broken'">📋 Forms</button>
-    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+    
     <button class="menu-btn active" onclick="location.href='documentation'">📄 Documentation</button>
     
 
@@ -58,22 +58,22 @@
 
 <div id="previewContainer"></div>
 
-<video id="camera" autoplay playsinline></video>
-<canvas id="canvas" style="display:none;"></canvas>
+<div class="camera-container">
+    <video id="camera" autoplay playsinline></video>
+</div>
 
-<br>
-
+<canvas id="canvas" style="display: none;"></canvas>
 
 <div class="button-container">
+    <button onclick="openCamera()">Open Documentation Camera</button>
 
-    <button onclick="takePhoto()">
-        📷 Take Photo
-    </button>
+    <button onclick="takePhoto()">📷 Take Photo</button>
 
-    <button onclick="uploadPhotos()">
-        ✅ Confirm Borrow
-    </button>
+    <button onclick="uploadPhotos()">✅ Confirm Save</button>
+</div>
 
+<div class="preview-container">
+    <img id="preview" width="400">
 </div>
 
 <img id="preview" width="400">

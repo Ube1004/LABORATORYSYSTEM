@@ -21,7 +21,7 @@
     <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
     <button class="menu-btn" onclick="location.href='returning'">🔄 Returning</button>
     <button class="menu-btn active" onclick="location.href='broken'">📋 Forms</button>
-    <button class="menu-btn" onclick="location.href='analytics'">📈 Data Analytics</button>
+    
     <button class="menu-btn" onclick="location.href='documentation'">📄 Documentation</button>
     
 
@@ -40,51 +40,81 @@
     <!-- TABLE 1 - RESERVATION FORM -->
     <!-- ============================= -->
 
-    <div class="table-container">
+<div class="table-container">
+    <h2 class="table-title">Reservation Form</h2>
 
-        <h2 class="table-title">Reservation Form</h2>
+    <div class="table-wrapper">
 
-        <div class="table-wrapper">
+        <button id="seeAllBtn"
+                onclick="seeAll('tableReservation', 'seeAllBtn', 5)">
+            See All
+        </button>
 
-<button id="seeAllBtn" onclick="seeAll()">See All</button>
-            <table class="records-table" id ="tableReservation">
-                <thead>
-                    <tr>
-                        <th>Nature of Activity</th>
-                        <th>Date Filed</th>
-                        <th>Objective</th>
-                        <th>Date of Activity</th>
-                        <th>Time</th>
-                        <th>Year &amp; Section</th>
-                        <th>Number of Students</th>
-                        <th>Material / Equipment Needed</th>
-                        <th>Teacher In Charge</th>
-                    </tr>
-                </thead>
+        <table class="records-table" id="tableReservation">
+            <thead>
+                <tr>
+                    <th>Date of Activity</th>
+                    <th>Time</th>
+                    <th>Nature of Activity</th>
+                    <th>Teacher In Charge</th>
+                    <th>Materials Needed</th>
+                    <th>More</th>
+                </tr>
+            </thead>
 
-                <tbody>
-                    {%  for row in data   %}
-                    <tr class="data-row">
-                        <td>{{  row["activity"]  }}</td>
-                        <td>{{  row["dateFiled"]  }}</td>
-                        <td>{{  row["objective"]  }}</td>
-                        <td>{{  row["dateOfUse"]  }}</td>
-                        <td>{{  row["time"]  }}</td>
-                        <td>{{  row["yearAndSection"]  }}</td>
-                        <td>{{  row["numberOfStudent"]  }}</td>
-                        <td>{{  row["ItemID"]  }}</td>
-                        <td>{{  row["teacher"]  }}</td>
-                        
-                    </tr>
-                    {% endfor  %}
-                   
-                </tbody>
+            <tbody>
+                {% for row in data %}
+                <tr class="data-row">
+                    <td>{{ row["dateOfUse"] }}</td>
+                    <td>{{ row["time"] }}</td>
+                    <td>{{ row["activity"] }}</td>
+                    <td>{{ row["teacher"] }}</td>
+                    <td>{{ row["ItemID"] }}</td>
 
-            </table>
-            
-        </div>
+                    <td>
+                        <details class="reservation-more">
+                            <summary>More</summary>
+
+                            <div class="more-content">
+                                <p>
+                                    <strong>Objective:</strong>
+                                    {{ row["objective"] }}
+                                </p>
+
+                                <p>
+                                    <strong>Date Filed:</strong>
+                                    {{ row["dateFiled"] }}
+                                </p>
+
+                                <p>
+                                    <strong>Year &amp; Section:</strong>
+                                    {{ row["yearAndSection"] }}
+                                </p>
+
+                                <p>
+                                    <strong>Number of Students:</strong>
+                                    {{ row["numberOfStudent"] }}
+                                </p>
+
+                                <p>
+                                    <strong>Approved By:</strong>
+                                    {{ row["ApprovedBy"] }}
+                                </p>
+
+                                <p>
+                                    <strong>Reservation ID:</strong>
+                                    {{ row["reservationID"] }}
+                                </p>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
     </div>
+</div>
 
 
     <!-- ============================= -->
