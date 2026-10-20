@@ -4,80 +4,161 @@
     <title>Documentation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
+
 <body>
+
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 
 <div class="container">
 
-<div class="sidebar">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
 
-    <div class="logo-header">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
-        <h2 class="title">SCIENCE LABORATORY IN CITY COLLEGE OF ANGELES</h2>
+        <div class="logo-header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+
+            <h2 class="title">
+                SCIENCE LABORATORY IN CITY COLLEGE OF ANGELES
+            </h2>
+        </div>
+
+
+        <button class="menu-btn" onclick="location.href='dashboard'">
+            📊 Dashboard
+        </button>
+
+        <button class="menu-btn" onclick="location.href='borrow'">
+            📥 Borrowing
+        </button>
+
+        <button class="menu-btn" onclick="location.href='returning'">
+            🔄 Returning
+        </button>
+
+        <button class="menu-btn" onclick="location.href='broken'">
+            📋 List Items
+        </button>
+
+        <button class="menu-btn" onclick="location.href='analytics'">
+            📈 Data Analytics
+        </button>
+
+        <button class="menu-btn active" onclick="location.href='documentation'">
+            📄 Documentation
+        </button>
+
+
+        <!-- USER -->
+        <div class="user-box">
+            <p class="name">Ashley Basilio</p>
+            <small>basilio@cca.edu.ph</small>
+        </div>
+
+
+        <!-- LOGOUT -->
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
     </div>
 
-    <button class="menu-btn" onclick="location.href='dashboard'">📊 Dashboard</button>
-    <button class="menu-btn" onclick="location.href='borrow'">📥 Borrowing</button>
-    <button class="menu-btn" onclick="location.href='returning'">🔄 Returning</button>
-    <button class="menu-btn" onclick="location.href='broken'">📋 Forms</button>
-    
-    <button class="menu-btn active" onclick="location.href='documentation'">📄 Documentation</button>
-    
 
-    <div class="user-box">
-        <p class="name">Ashley Basilio</p>
-        <small>basilio@cca.edu.ph</small>
+  <div class="main">
+
+    <h2 class="page-title">
+        Documentation
+    </h2>
+
+        <!-- DOCUMENTATION MODAL -->
+        <div id="docModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeDoc()">
+                    &times;
+                </span>
+
+                <h3 id="modalTitle"></h3>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Institute</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="docTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- CAMERA -->
+        <video id="camera" autoplay playsinline></video>
+
+        <canvas id="canvas" style="display: none;"></canvas>
+
+
+        <!-- CAMERA BUTTON -->
+        <div class="button-container">
+
+            <button onclick="takePhoto()">
+                 Take Photo
+            </button>
+
+        </div>
+
+
+        <!-- PHOTO PREVIEW MODAL -->
+        <div id="photoModal" class="photo-modal">
+
+            <div class="photo-container">
+
+                <!-- CAPTURED PHOTO -->
+                <img
+                    id="preview"
+                    class="preview-image"
+                    alt="Captured Photo"
+                >
+
+
+                <!-- PHOTO ACTIONS -->
+                <div class="photo-actions">
+
+                    <button
+                        class="remove-btn"
+                        onclick="removePhoto()"
+                    >
+                        Remove
+                    </button>
+
+
+                    <button
+                        class="confirm-photo-btn"
+                        onclick="confirmPhoto()"
+                    >
+                        Confirm
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
-
-<div class="main">
-    <h2 class="page-title">Documentation</h2>
-
-    
-
-<!-- ONE MODAL ONLY -->
-<div id="docModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeDoc()">&times;</span>
-    <h3 id="modalTitle"></h3>
-
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th><th>Name</th><th>Email</th>
-          <th>Contact</th><th>Institute</th><th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="docTable"></tbody>
-    </table>
-  </div>
-</div>
-
-<div id="previewContainer"></div>
-
-<div class="camera-container">
-    <video id="camera" autoplay playsinline></video>
-</div>
-
-<canvas id="canvas" style="display: none;"></canvas>
-
-<div class="button-container">
-    <button onclick="openCamera()">Open Documentation Camera</button>
-
-    <button onclick="takePhoto()">📷 Take Photo</button>
-
-    <button onclick="uploadPhotos()">✅ Confirm Save</button>
-</div>
-
-<div class="preview-container">
-    <img id="preview" width="400">
-</div>
-
-<img id="preview" width="400">
 
 </body>
-
 </html>

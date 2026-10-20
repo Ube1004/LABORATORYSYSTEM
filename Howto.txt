@@ -11,3 +11,12 @@ git add .
 git commit -m "changes"
 git pull --no-rebase origin main
 git push
+
+
+//branch
+git add .
+git commit -m "changes"
+
+git switch -c camera-fix
+
+git push -u origin camera-fix

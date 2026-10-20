@@ -1075,16 +1075,24 @@
     <div class="modal-content form-container">
 
         <span class="close" onclick="closeForm('cameraForm')">&times;</span>
+
+        <div class="reader-wrap">
             <div id="reader"></div>
-            <button
-                type="button"
-                class="scan-btn"
-                onclick="stopScanner(qrscanform)">
-                Stop Scanner
-            </button>
+            <div id="scanOverlay" class="scan-overlay"></div>
+        </div>
 
+        <div id="scanFeedback" class="scan-feedback"></div>
+        <ul id="scannedList" class="scanned-list"></ul>
+
+        <button
+            type="button"
+            class="scan-btn"
+            onclick="stopScanner(qrscanform)">
+            Stop Scanner
+        </button>
+
+    </div>
 </div>
-
 
 <!-- ================= QR SCANNER MODAL ================= -->
 
@@ -1350,6 +1358,8 @@
 
 <!-- ================= BREAKAGE FORM ================= -->
 
+<!-- ================= BREAKAGE FORM ================= -->
+
 <div id="breakageForm" class="modal">
 
     <div class="modal-content large-form">
@@ -1568,6 +1578,8 @@
 </div>
 
 
+
+
 <!-- ================= REQUISITION FORM ================= -->
 
 <div id="requisitionForm" class="modal">
@@ -1726,7 +1738,65 @@
 
 
                 <tbody>
+                     <tbody>
 
+                    <tr>
+
+                        <td>
+                            <input
+                                type="number"
+                                min="1">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            <input
+                                type="number"
+                                min="1">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            <input
+                                type="number"
+                                min="1">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                        <td>
+                            <input type="text">
+                        </td>
+
+                    </tr>
+
+                </tbody>
                    
 
             </table>

@@ -1,4 +1,5 @@
 //global variable
+let overlayTimer;
 let borrowData = {};
 let returningItems = [];
 let codes = [];
@@ -11,7 +12,15 @@ const promise = new Promise((resolve, reject) => {
   resolve("Done!");
 });
 
+// NOTE: Jinja ({{ }}) is NOT processed in static .js files, so this will be the
+// literal text "{{ session['name'] }}". Set it in the HTML template instead, e.g.
+// <script>const curruser = {{ session['name']|tojson }};</script>
 const curruser = "{{ session['name'] }}";
+
+
+/* =========================================
+   LOGIN / NAVIGATION
+   ========================================= */
 
 function login() {
   let username = document.getElementById("username").value;
@@ -40,8 +49,9 @@ function login() {
     });
 }
 
+// Only try to log in when the login fields actually exist on this page
 document.addEventListener("keydown", function (event) {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" && document.getElementById("username")) {
     login();
   }
 });
@@ -50,243 +60,299 @@ function gotologin() {
   window.location.href = "/gotologin";
 }
 
+function logout() {
+  window.location.href = "/logout";
+}
+
+function returning() {
+  window.location.href = "/returning";
+}
+
+function modifyRecord(id) {
+  window.location.href = "/modify/" + id;
+}
+
 function qrscan() {
   fetch("/qrscan");
-
-  /*.then(data => {
-        
-     let rows = "";
-
-        data.items.forEach(item => {
-            rows += `
-                <tr>
-                    <td style="width: 50px;">${item.ItemID}</td>
-                    <td style="width: 50px;">${item.Code}</td>
-                    <td style="width: 50px;">${item.Category}</td>
-                    <td style="width: 50px;">${item.Type}</td>
-                    <td style="width: 50px;">${item.Status}</td>
-                    <td style="width: 50px;"><button onclick="handleAction('${item.Code}', '${item.Status}')">
-                     ${item.Status === "Available" ? "Borrow" : "Return"}</td>
-                        
-
-                </tr>
-            `;
-        });
-
-        document.getElementById("tableBody").innerHTML = rows;
-        if(data.missing && data.missing.length > 0){
-        alert("item: " + data.missing.join(", ") + " Are not on Database");
-    }
-        
-    });
-
-    
-*/
 }
-// Manual Add
+
+
+/* =========================================
+   BORROWING: MANUAL ADD
+   ========================================= */
+
 function manualAdd() {
-    let code = prompt("Enter the item code:");
+  let code = prompt("Enter the item code:");
 
-    if (code === null) return;
+  if (code === null) return;
 
-    code = code.trim();
+  code = code.trim();
 
-    if (!code) {
-        alert("Please enter an item code.");
-        return;
-    }
+  if (!code) {
+    alert("Please enter an item code.");
+    return;
+  }
 
-    if (codes.includes(code)) {
-        alert("This item has already been added.");
-        return;
-    }
+  if (codes.includes(code)) {
+    alert("This item has already been added.");
+    return;
+  }
 
-    codes.push(code);
+  codes.push(code);
 
-    loadBorrowItems();
+  loadBorrowItems();
 }
 
-// QR SCAN
-// QR SCAN
+
+/* =========================================
+   BORROWING: QR SCAN
+   ========================================= */
+function renderScannedList() {
+  const list = document.getElementById("scannedList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  codes.forEach((code) => {
+    const li = document.createElement("li");
+    li.textContent = code;
+    list.appendChild(li);
+  });
+}
+
+// Label shown on top of the camera view
+function showScanOverlay(text, isDuplicate = false) {
+  const overlay = document.getElementById("scanOverlay");
+  if (!overlay) return;
+
+  overlay.textContent = text;
+  overlay.classList.toggle("duplicate", isDuplicate);
+  overlay.classList.add("show");
+
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => overlay.classList.remove("show"), 1500);
+}
+
+// Called every time the camera decodes a QR code
+function onScanSuccess(decodedText) {
+  const code = decodedText.trim();
+  if (!code) return;
+
+  const feedback = document.getElementById("scanFeedback");
+  const reader = document.getElementById("reader");
+
+  if (codes.includes(code)) {
+    if (feedback) feedback.textContent = `Already scanned: ${code}`;
+    showScanOverlay(`Already scanned: ${code}`, true);
+    return;
+  }
+
+  codes.push(code);
+  console.log("CODES:", codes);
+
+  if (feedback) feedback.textContent = `✔ Scanned: ${code}`;
+  showScanOverlay(`✔ ${code}`);
+  renderScannedList();
+
+  // Flash the camera border green
+  if (reader) {
+    reader.classList.add("scan-hit");
+    setTimeout(() => reader.classList.remove("scan-hit"), 400);
+  }
+
+  // Vibrate on phones that support it
+  if (navigator.vibrate) navigator.vibrate(100);
+}
+
 async function startScanner() {
-    if (scanner) return; // Prevent opening multiple scanners
+  if (scanner) return; // Prevent opening multiple scanners
 
-    openForm('cameraForm');
+  openForm("cameraForm");
 
-    scanner = new Html5Qrcode("reader");
+  // Show anything already added (scanned earlier or via Manual Add)
+  const feedback = document.getElementById("scanFeedback");
+  if (feedback) feedback.textContent = "";
+  renderScannedList();
 
-    try {
-        await scanner.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 400 },
-            (decodedText) => {
-                const code = decodedText.trim();
+  scanner = new Html5Qrcode("reader");
 
-                if (code && !codes.includes(code)) {
-                    codes.push(code);
-                    console.log("CODES:", codes);
-                }
-            },
-            () => {}
-        );
+  try {
+    
+await scanner.start(
+  { facingMode: "environment" },
+  {
+    fps: 10,
+    qrbox: (viewfinderWidth, viewfinderHeight) => {
+      const size = Math.min(
+        viewfinderWidth,
+        viewfinderHeight,
+        300
+      );
 
-        console.log("Scanner started");
-    } catch (error) {
-        console.error("Camera error:", error);
-        scanner = null;
-        closeForm('cameraForm');
-        alert("Could not start the camera.");
+      return {
+        width: size,
+        height: size
+      };
     }
+  },
+  onScanSuccess,
+  () => {}
+);
+
+
+    console.log("Scanner started");
+  } catch (error) {
+    console.error("Camera error:", error);
+    scanner = null;
+    closeForm("cameraForm");
+    alert("Could not start the camera.");
+  }
 }
-
-
-// STOP QR SCANNER
 async function stopScanner(afterStop) {
-    if (scanner) {
-        try {
-            if (scanner.isScanning) {
-                await scanner.stop();
-            }
+  if (scanner) {
+    try {
+      if (scanner.isScanning) {
+        await scanner.stop();
+      }
 
-            scanner.clear();
-            scanner = null;
+      scanner.clear();
+      scanner = null;
 
-            console.log("Scanner stopped");
-        } catch (error) {
-            console.error("Error stopping scanner:", error);
-        }
+      console.log("Scanner stopped");
+    } catch (error) {
+      console.error("Error stopping scanner:", error);
     }
+  }
 
-    closeForm('cameraForm');
+  closeForm("cameraForm");
 
-    // Process scanned items only if there are codes
-    if (codes.length > 0 && typeof afterStop === "function") {
-        afterStop(codes);
-    }
+  // Process scanned items only if there are codes
+  if (codes.length > 0 && typeof afterStop === "function") {
+    afterStop(codes);
+  }
 }
-
 
 function loadBorrowItems() {
-    let studentid = document.getElementById("StudentID").value.trim();
-    let name = document.getElementById("Name").value.trim();
-    let email = document.getElementById("Email").value.trim();
-    let institute = document.getElementById("Institute").value.trim();
-    let contact = document.getElementById("Contact").value.trim();
-    let dateB = document.getElementById("dateBorrowed").value;
-    let dateR = document.getElementById("dateReturn").value;
-    let approvedBy = document.getElementById("approvedBy").value.trim();
-    let remarks = document.getElementById("remarks").value.trim();
+  let studentid = document.getElementById("StudentID").value.trim();
+  let name = document.getElementById("Name").value.trim();
+  let email = document.getElementById("Email").value.trim();
+  let institute = document.getElementById("Institute").value.trim();
+  let contact = document.getElementById("Contact").value.trim();
+  let dateB = document.getElementById("dateBorrowed").value;
+  let dateR = document.getElementById("dateReturn").value;
+  let approvedBy = document.getElementById("approvedBy").value.trim();
+  let remarks = document.getElementById("remarks").value.trim();
 
-    if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
-        document.getElementById("mydiv").showPopover();
-        return;
-    }
+  if (!studentid || !name || !email || !institute || !contact || !approvedBy) {
+    document.getElementById("mydiv").showPopover();
+    return;
+  }
 
-    fetch("/qrscan", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ codes: codes })
+  fetch("/qrscan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ codes: codes }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const itemBox = document.getElementById("itemBox");
+      itemBox.innerHTML = "";
+
+      data.items.forEach((item) => {
+        const div = document.createElement("div");
+        div.classList.add("item");
+        div.textContent = `${item.Type} with code ${item.Code}`;
+        itemBox.appendChild(div);
+      });
+
+      borrowData = {
+        name,
+        studentid,
+        email,
+        institute,
+        contact,
+        dateB,
+        dateR,
+        items: data.items,
+        approvedBy,
+        remarks,
+      };
+
+      document.getElementById("confirmBtn").style.display = "block";
+
+      if (data.missing?.length) {
+        alert("Missing/Not on Database: " + data.missing.join(", "));
+      }
     })
-    .then(res => res.json())
-    .then(data => {
-        const itemBox = document.getElementById("itemBox");
-        itemBox.innerHTML = "";
-
-        data.items.forEach(item => {
-            const div = document.createElement("div");
-            div.classList.add("item");
-            div.textContent = `${item.Type} with code ${item.Code}`;
-            itemBox.appendChild(div);
-        });
-
-        borrowData = {
-            name,
-            studentid,
-            email,
-            institute,
-            contact,
-            dateB,
-            dateR,
-            items: data.items,
-            approvedBy,
-            remarks
-        };
-
-        document.getElementById("confirmBtn").style.display = "block";
-
-        if (data.missing?.length) {
-            alert("Missing/Not on Database: " + data.missing.join(", "));
-        }
-    })
-    .catch(error => {
-        console.error("Error loading items:", error);
-        alert("Failed to load item details.");
+    .catch((error) => {
+      console.error("Error loading items:", error);
+      alert("Failed to load item details.");
     });
 }
 
-
 function qrscanform(codes) {
-    loadBorrowItems();
+  loadBorrowItems();
 }
 
 function confirmborrow(borrowData) {
-    if (!borrowData) {
-        alert("Must insert data first");
-        return;
-    }
+  if (!borrowData) {
+    alert("Must insert data first");
+    return;
+  }
 
-    if (
-        !borrowData.studentid ||
-        !borrowData.name ||
-        !borrowData.email ||
-        !borrowData.institute ||
-        !borrowData.contact ||
-        !borrowData.approvedBy
-    ) {
-        document.getElementById("mydiv").showPopover();
-        return;
-    }
+  if (
+    !borrowData.studentid ||
+    !borrowData.name ||
+    !borrowData.email ||
+    !borrowData.institute ||
+    !borrowData.contact ||
+    !borrowData.approvedBy
+  ) {
+    document.getElementById("mydiv").showPopover();
+    return;
+  }
 
-    fetch("/confirmborrow", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(borrowData)
-    })
-.then(async res => {
-    const text = await res.text();
+  fetch("/confirmborrow", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(borrowData),
+  })
+    .then(async (res) => {
+      const text = await res.text();
 
-    console.log("Confirm borrow status:", res.status);
-    console.log("Confirm borrow response:", text);
+      console.log("Confirm borrow status:", res.status);
+      console.log("Confirm borrow response:", text);
 
-    let data;
+      let data;
 
-    try {
+      try {
         data = JSON.parse(text);
-    } catch {
-        throw new Error("Flask returned HTML instead of JSON. Check the Python terminal.");
-    }
+      } catch {
+        throw new Error(
+          "Flask returned HTML instead of JSON. Check the Python terminal.",
+        );
+      }
 
-    if (!res.ok) {
+      if (!res.ok) {
         throw new Error(data.error || "Borrowing failed");
-    }
+      }
 
-    return data;
-})
-.then(data => {
-    console.log(data);
-    alert("Data successfully inserted");
-    returning();
-})
-.catch(error => {
-    console.error("Confirm borrow error:", error);
-    alert(error.message);
-});
+      return data;
+    })
+    .then((data) => {
+      console.log(data);
+      alert("Data successfully inserted");
+      returning();
+    })
+    .catch((error) => {
+      console.error("Confirm borrow error:", error);
+      alert(error.message);
+    });
 }
-
 
 function test() {
   let studentid = document.getElementById("StudentID").value;
@@ -299,7 +365,6 @@ function test() {
   fetch("/test")
     .then((res) => res.json())
     .then((data) => {
-      // show data
       alert(
         JSON.stringify(data) +
           studentid +
@@ -313,93 +378,13 @@ function test() {
       showCButton();
     });
 }
-function closeForm(formId) {
-  document.getElementById(formId).style.display = "none";
+
+function showCButton() {
+  document.getElementById("confirmBtn").style.display = "block";
 }
 
-function openForm(formId, itemId) {
-  document.getElementById(formId).style.display = "block";
-
-  if (itemId) {
-    fetch("/getItem", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId: itemId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        let Type = data.Type;
-
-        document.getElementById("Type").textContent = data.item.Type;
-        document.getElementById("Category").textContent = data.item.Category;
-        document.getElementById("Class").textContent = data.item.Class;
-        let codes = "";
-        let Bcodes = "";
-
-        data.available.forEach((item) => {
-          codes += item.Code + ", ";
-        });
-
-        document.getElementById("AvailableCodes").innerHTML = codes;
-
-        data.borrowed.forEach((item) => {
-          Bcodes += item.Code + ", ";
-        });
-
-        document.getElementById("BorrowedCodes").innerHTML = Bcodes;
-
-        document.getElementById(formId).style.display = "block";
-      });
-  } else {
-    document.getElementById(formId).style.display = "block";
-  }
-}
-
-/* DISPLAY BORROW FORM */
-document.addEventListener("DOMContentLoaded", function () {
-    let now = new Date();
-    let today = now.toISOString().split("T")[0];
-    let returnDateObj = new Date(today);
-    let currentTime = now.toTimeString().slice(0, 5);
-
-    returnDateObj.setDate(returnDateObj.getDate() + 7);
-
-    let dateBorrowed = document.getElementById("dateBorrowed");
-    let dateReturn = document.getElementById("dateReturn");
-    let dateTimeBorrowed = document.getElementById("dateTimeBorrowed");
-
-    if (dateBorrowed) {
-        dateBorrowed.value = today;
-    }
-
-    if (dateReturn) {
-        dateReturn.value = returnDateObj.toISOString().split("T")[0];
-    }
-
-    if (dateTimeBorrowed) {
-        dateTimeBorrowed.value = currentTime;
-    }
-});
-
-function qrmaker() {
-  fetch("/qrmaker", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ category: category, type: type }),
-  });
-}
 function test1() {
   alert("Hello world");
-}
-
-function returning() {
-  window.location.href = "/returning";
-}
-
-function borrowin() {
-  let name = "";
 }
 
 //variable for borrowing
@@ -429,6 +414,94 @@ function borrowform() {
     return;
   }
 }
+
+function borrowin() {
+  let name = "";
+}
+
+
+/* =========================================
+   MODALS
+   ========================================= */
+
+function closeForm(formId) {
+  document.getElementById(formId).style.display = "none";
+}
+
+function openForm(formId, itemId) {
+  document.getElementById(formId).style.display = "block";
+
+  if (itemId) {
+    fetch("/getItem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: itemId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("Type").textContent = data.item.Type;
+        document.getElementById("Category").textContent = data.item.Category;
+        document.getElementById("Class").textContent = data.item.Class;
+        let codes = "";
+        let Bcodes = "";
+
+        data.available.forEach((item) => {
+          codes += item.Code + ", ";
+        });
+
+        document.getElementById("AvailableCodes").innerHTML = codes;
+
+        data.borrowed.forEach((item) => {
+          Bcodes += item.Code + ", ";
+        });
+
+        document.getElementById("BorrowedCodes").innerHTML = Bcodes;
+
+        document.getElementById(formId).style.display = "block";
+      });
+  }
+}
+
+/* DEFAULT BORROW FORM DATES (borrowed = today, return = +7 days) */
+document.addEventListener("DOMContentLoaded", function () {
+  let now = new Date();
+  let today = now.toISOString().split("T")[0];
+  let returnDateObj = new Date(today);
+  let currentTime = now.toTimeString().slice(0, 5);
+
+  returnDateObj.setDate(returnDateObj.getDate() + 7);
+
+  let dateBorrowed = document.getElementById("dateBorrowed");
+  let dateReturn = document.getElementById("dateReturn");
+  let dateTimeBorrowed = document.getElementById("dateTimeBorrowed");
+
+  if (dateBorrowed) {
+    dateBorrowed.value = today;
+  }
+
+  if (dateReturn) {
+    dateReturn.value = returnDateObj.toISOString().split("T")[0];
+  }
+
+  if (dateTimeBorrowed) {
+    dateTimeBorrowed.value = currentTime;
+  }
+});
+
+function qrmaker() {
+  fetch("/qrmaker", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: category, type: type }),
+  });
+}
+
+
+/* =========================================
+   RETURNING
+   ========================================= */
 
 function ItemReturning(items) {
   let html = "";
@@ -472,7 +545,6 @@ function manualReturn() {
     });
 }
 
-//return scan
 function startReturnScanner() {
   returnScanner = new Html5Qrcode("returnReader");
 
@@ -525,6 +597,7 @@ function stopReturnScanner() {
     confirmreturn();
   }
 }
+
 function updateReturn() {
   console.log("SENDING RETURN:", returnItems);
 
@@ -595,71 +668,92 @@ function loadItems() {
     });
 }
 
-function showCButton() {
-  document.getElementById("confirmBtn").style.display = "block";
-}
 
-function modifyRecord(id) {
-  window.location.href = "/modify/" + id;
-}
+/* =========================================
+   CAMERA (PHOTOS)
+   ========================================= */
 
 const video = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
-const previewContainer = document.getElementById("previewContainer");
+const photoModal = document.getElementById("photoModal");
 
 let photos = [];
 let imageData = "";
 
-if (preview) {
-    preview.src = imageData;
-}
-
-// Open camera
-// Open camera only when called
-let cameraStream = null;
-
-async function openCamera() {
-    try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: true
-        });
-
-        video.srcObject = cameraStream;
-        await video.play();
-
-    } catch (error) {
+/* OPEN CAMERA */
+if (video && canvas && preview && photoModal) {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+      })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((error) => {
         console.error("Camera error:", error);
-        alert("Could not open the camera.");
-    }
+
+        if (error.name === "NotAllowedError") {
+          alert(
+            "Camera access was denied. Please allow camera access in your browser settings.",
+          );
+        } else if (error.name === "NotFoundError") {
+          alert("No camera was found on this device.");
+        } else if (error.name === "NotReadableError") {
+          alert("The camera is already being used by another application.");
+        } else {
+          alert("Unable to access the camera.");
+        }
+      });
+  } else {
+    alert("Camera is not supported by this browser.");
+  }
 }
 
-// Stop the camera
-function stopCamera() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-    }
-
-    video.srcObject = null;
-}
-
+/* TAKE PHOTO */
 function takePhoto() {
+  if (!video || !canvas || !preview || !photoModal) {
+    return;
+  }
+
   const ctx = canvas.getContext("2d");
 
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
-  ctx.drawImage(video, 0, 0);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   const image = canvas.toDataURL("image/jpeg");
 
+  /* Save photo */
   photos.push(image);
 
-  renderPhotos();
+  /* Show the captured photo in the center */
+  preview.src = image;
+
+  photoModal.style.display = "flex";
 }
-// Upload photo
-function uploadPhotos() {
+
+/* REMOVE PHOTO */
+function removePhoto() {
+  /* Remove the most recent photo */
+  photos.pop();
+
+  /* Clear preview */
+  preview.src = "";
+
+  /* Close popup */
+  photoModal.style.display = "none";
+}
+
+/* CONFIRM PHOTO */
+function confirmPhoto() {
+  if (photos.length === 0) {
+    alert("Please take a photo first.");
+    return;
+  }
+
   fetch("/savephotos", {
     method: "POST",
 
@@ -674,32 +768,32 @@ function uploadPhotos() {
     .then((res) => res.json())
     .then((data) => {
       alert(data.message);
+
+      /* Close popup */
+      photoModal.style.display = "none";
+
+      /* Clear preview */
+      preview.src = "";
+
+      /* Clear photos after successful save */
+      photos = [];
+    })
+    .catch((error) => {
+      console.error("Upload error:", error);
+
+      alert("An error occurred while saving the photo.");
     });
 }
 
-function renderPhotos() {
-  previewContainer.innerHTML = "";
-
-  photos.forEach((photo, index) => {
-    previewContainer.innerHTML += `
-            <div class="photo-card">
-                <img src="${photo}" width="150">
-
-                <br>
-
-                <button onclick="removePhoto(${index})">
-                    ❌ Remove
-                </button>
-            </div>
-        `;
-  });
+/* CLOSE PHOTO MODAL */
+function closePhotoModal() {
+  photoModal.style.display = "none";
 }
 
-function removePhoto(index) {
-  photos.splice(index, 1);
 
-  renderPhotos();
-}
+/* =========================================
+   ACCOUNTS
+   ========================================= */
 
 function confirmCreate() {
   let name = document.getElementById("createName").value;
@@ -740,10 +834,6 @@ function confirmCreate() {
     });
 }
 
-function logout() {
-  window.location.href = "/logout";
-}
-
 function checkID() {
   let studentID = document.getElementById("studentID").value;
 
@@ -774,14 +864,12 @@ function checkID() {
         document.getElementById("Contact").value = "";
       }
     })
-
     .catch((error) => {
       console.error("Error:", error);
     });
 }
 
 //manage account
-
 function manageAccount() {
   fetch("/manageAccount")
     .then((response) => response.json())
@@ -817,7 +905,6 @@ function openUserDetails(userID) {
       if (data.success) {
         document.getElementById("userID").value = data.userID;
         document.getElementById("userName").value = data.name;
-
         document.getElementById("userStatus").value = data.status;
 
         openForm("manageUserDetails");
@@ -836,8 +923,9 @@ function saveUserChanges() {
     status: document.getElementById("userStatus").value,
   };
 
-  let password = document.getElementById("userPassword").value;
+  const password = payload.password;
 
+  // Validate only when a new password was typed (empty = keep current)
   if (password) {
     if (password.length < 8) {
       alert("Password must be at least 8 characters.");
@@ -853,24 +941,26 @@ function saveUserChanges() {
       alert("Password must contain a special character.");
       return;
     }
-  } else {
-    fetch(`/update_user/${payload.userID}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("User updated.");
-          closeForm("manageUserDetails");
-          manageAccount();
-        } else {
-          alert("Update failed.");
-        }
-      })
-      .catch((error) => console.error(error));
   }
+
+  // FIX: this request used to live in the `else` branch, so changing a
+  // password never saved. It now runs in both cases.
+  fetch(`/update_user/${payload.userID}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("User updated.");
+        closeForm("manageUserDetails");
+        manageAccount();
+      } else {
+        alert("Update failed.");
+      }
+    })
+    .catch((error) => console.error(error));
 }
 
 function deleteUser() {
@@ -898,7 +988,7 @@ function deleteUser() {
     });
 }
 
-//analytics graph
+
 /* =========================================================
    LABORATORY INVENTORY SEARCH
    ========================================================= */
@@ -913,20 +1003,13 @@ function searchInventory() {
 
   let totalMatches = 0;
 
-  /* =====================================================
-       CHECK EVERY CATEGORY
-       ===================================================== */
-
   categories.forEach(function (category) {
     const rows = category.querySelectorAll(".inventory-table tbody tr");
 
     /*
-     * CHECK IF THE SEARCH TERM MATCHES
-     * THIS CATEGORY'S HEADER (e.g. "Toxic Chemicals").
-     * Emoji and other symbols are stripped out first
-     * so only the actual text is compared.
+     * Match the search term against the category header too
+     * (e.g. "Toxic Chemicals"). Emoji/symbols are stripped first.
      */
-
     const headerElement = category.querySelector(".category-header h3");
 
     const categoryName = headerElement
@@ -941,47 +1024,22 @@ function searchInventory() {
 
     let categoryMatches = 0;
 
-    /* =================================================
-           CHECK EVERY ITEM
-           ================================================= */
-
     rows.forEach(function (row) {
       const itemName = row
         .querySelector("td:first-child")
         .textContent.toLowerCase()
         .trim();
 
-      /*
-       * SHOW THE ROW IF:
-       * - the item name matches, OR
-       * - the whole category header matches
-       *   (in which case every row in it counts).
-       */
-
       if (itemName.includes(searchInput) || categoryHeaderMatches) {
         row.style.display = "";
-
         categoryMatches++;
-
         totalMatches++;
       } else {
         row.style.display = "none";
       }
     });
 
-    /* =================================================
-           HIDE CATEGORY IF NO ITEM MATCHES
-           ================================================= */
-
-    if (categoryMatches === 0) {
-      category.style.display = "none";
-    } else {
-      category.style.display = "";
-    }
-
-    /* =================================================
-           UPDATE CATEGORY COUNT
-           ================================================= */
+    category.style.display = categoryMatches === 0 ? "none" : "";
 
     const countElement = category.querySelector(".category-visible-count");
 
@@ -991,13 +1049,9 @@ function searchInventory() {
   });
 
   const noResult = document.getElementById("noInventoryResult");
-
   const searchResult = document.getElementById("searchResult");
 
-  /* =====================================================
-       EMPTY SEARCH
-       ===================================================== */
-
+  /* EMPTY SEARCH: reset everything */
   if (searchInput === "") {
     categories.forEach(function (category) {
       category.style.display = "";
@@ -1016,16 +1070,12 @@ function searchInventory() {
     });
 
     searchResult.innerHTML = "Showing all laboratory inventory items.";
-
     noResult.style.display = "none";
 
     return;
   }
 
-  /* =====================================================
-       DISPLAY SEARCH RESULTS
-       ===================================================== */
-
+  /* DISPLAY SEARCH RESULTS */
   if (totalMatches > 0) {
     searchResult.innerHTML =
       "Found <strong>" +
@@ -1043,27 +1093,44 @@ function searchInventory() {
   }
 }
 
-/*SEARCH FOR LOG*/
+
+/* =========================================================
+   SEARCH FOR LOG
+   Works with the new paginated table (#returnTableMain) and
+   falls back to the old table (#returnTable) if that's what
+   the page has.
+   ========================================================= */
+
 function searchLog() {
-    const search = document.getElementById("logSearch").value.toLowerCase().trim();
+  const input = document.getElementById("logSearch");
+  if (!input) return;
 
-    const rows = document.querySelectorAll(
-        "#returnTableMain tbody tr.data-row"
-    );
+  const search = input.value.toLowerCase().trim();
+  const mainTable = document.getElementById("returnTableMain");
 
-    rows.forEach((row, index) => {
-        const text = row.textContent.toLowerCase();
-        const matches = text.includes(search);
+  if (mainTable) {
+    if (search === "") {
+      // Restore the "first N rows only" view and the See All button
+      hideExtraRows("returnTableMain", "seeAllRtrnBtn", 10);
+      return;
+    }
 
-        if (search !== "") {
-            row.hidden = !matches;
-        } else {
-            row.hidden = index >= 5;
-        }
+    mainTable.querySelectorAll("tbody tr.data-row").forEach((row) => {
+      row.hidden = !row.textContent.toLowerCase().includes(search);
     });
-}
-/* MASK EMAIL */
+    return;
+  }
 
+  // Legacy table
+  document.querySelectorAll("#returnTable tr").forEach((row) => {
+    row.style.display = row.textContent.toLowerCase().includes(search)
+      ? ""
+      : "none";
+  });
+}
+
+
+/* MASK EMAIL */
 function maskEmail(email) {
   let newemail;
   let last = email.slice(email.indexOf("@") - 1);
@@ -1073,146 +1140,153 @@ function maskEmail(email) {
 }
 
 
-/* add Input */
-function addInput(divID,type, name, id, placeholder, thenWhere) {
-    const container = document.getElementById(divID);
+/* =========================================================
+   ADD INPUT (dynamic item fields)
+   ========================================================= */
 
-    const input = document.createElement("input");
-    input.type = type;
-    input.name = name;
-    input.id = id + (container.querySelectorAll("input").length + 1);
-    input.style.width = "80px";
-    input.placeholder = placeholder + (container.querySelectorAll("input").length + 1);
+function addInput(divID, type, name, id, placeholder, thenWhere) {
+  const container = document.getElementById(divID);
 
-    container.appendChild(input);
-    container.appendChild(document.createElement("br"));
-    if (thenWhere){
-      thenWhere();
-    }
+  const input = document.createElement("input");
+  input.type = type;
+  input.name = name;
+  input.id = id + (container.querySelectorAll("input").length + 1);
+  input.style.width = "80px";
+  input.placeholder =
+    placeholder + (container.querySelectorAll("input").length + 1);
+
+  container.appendChild(input);
+  container.appendChild(document.createElement("br"));
+  if (thenWhere) {
+    thenWhere();
+  }
 }
-// returning hidden rows
 
-// Hide extra rows when the page loads
+
+/* =========================================================
+   HIDDEN ROWS ("See All" / "See Less")
+   ========================================================= */
+
 document.addEventListener("DOMContentLoaded", function () {
-    hideExtraRows("returnTableMain", "seeAllRtrnBtn", 10);
-    hideExtraRows("tableReservation", "seeAllBtn", 5);
+  hideExtraRows("returnTableMain", "seeAllRtrnBtn", 10);
+  hideExtraRows("tableReservation", "seeAllBtn", 5);
 });
 
 function hideExtraRows(tableId, buttonId, limit = 5) {
-    const table = document.getElementById(tableId);
-    const button = document.getElementById(buttonId);
+  const table = document.getElementById(tableId);
+  const button = document.getElementById(buttonId);
 
-    if (!table || !button) {
-        console.log("Table or button not found:", tableId, buttonId);
-        return;
-    }
+  if (!table || !button) {
+    return;
+  }
 
-    const rows = table.querySelectorAll("tbody tr.data-row");
+  const rows = table.querySelectorAll("tbody tr.data-row");
 
-    console.log(tableId, "rows found:", rows.length);
+  rows.forEach((row, index) => {
+    row.hidden = index >= limit;
+  });
 
-    rows.forEach((row, index) => {
-        row.hidden = index >= limit;
-    });
-
-    button.hidden = false;
-    button.style.display = "inline-block";
-    button.textContent = "See All";
+  button.hidden = false;
+  button.style.display = "inline-block";
+  button.textContent = "See All";
 }
 
 function seeAll(tableId, buttonId, limit = 5) {
-    const table = document.getElementById(tableId);
-    const button = document.getElementById(buttonId);
+  const table = document.getElementById(tableId);
+  const button = document.getElementById(buttonId);
 
-    if (!table || !button) return;
+  if (!table || !button) return;
 
-    const rows = table.querySelectorAll("tbody tr.data-row");
-    const showingAll = button.textContent.trim() === "See All";
+  const rows = table.querySelectorAll("tbody tr.data-row");
+  const showingAll = button.textContent.trim() === "See All";
 
-    rows.forEach((row, index) => {
-        row.hidden = !showingAll && index >= limit;
-    });
+  rows.forEach((row, index) => {
+    row.hidden = !showingAll && index >= limit;
+  });
 
-    button.textContent = showingAll ? "See Less" : "See All";
+  button.textContent = showingAll ? "See Less" : "See All";
 }
 
 
- // reservation
+/* =========================================================
+   RESERVATION
+   ========================================================= */
 
-const reservationForm = document.querySelector('#reservationForm form');
+const reservationForm = document.querySelector("#reservationForm form");
 
-reservationForm.addEventListener('submit', async function (event) {
+// Guard: this script is shared by pages that don't have the reservation form
+if (reservationForm) {
+  reservationForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const form = this;
 
     try {
-        const response = await fetch(form.action, {
-            method: 'POST',
-            body: new FormData(form)
-        });
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+      });
 
-        if (response.ok) {
-            showReservationSummary(form);
-        } else {
-            const message = await response.text();
-            alert(message || "Failed to save reservation.");
-        }
+      if (response.ok) {
+        showReservationSummary(form);
+      } else {
+        const message = await response.text();
+        alert(message || "Failed to save reservation.");
+      }
     } catch (error) {
-        console.error(error);
-        alert("Something went wrong. Please try again.");
+      console.error(error);
+      alert("Something went wrong. Please try again.");
     }
-});
-
-function showReservationSummary(form) {
-    const data = new FormData(form);
-
-    const fields = {
-        sumSchoolID: data.get("SchoolID"),
-        sumDateFiled: data.get("dateFiled"),
-        sumActivity: data.get("activity"),
-        sumObjective: data.get("objective"),
-        sumDateOfUse: data.get("dateOfUse"),
-        sumTime: data.get("time"),
-        sumYearSection: data.get("yearAndSection"),
-        sumStudents: data.get("numberOfStudent"),
-        sumTeacher: data.get("teacher"),
-        sumApprovedBy: data.get("ApprovedBy")
-    };
-
-    for (const [id, value] of Object.entries(fields)) {
-        document.getElementById(id).textContent = value || "-";
-    }
-
-    const items = data.getAll("item[]").filter(item => item.trim());
-
-    document.getElementById("sumItems").textContent =
-        items.join(", ") || "-";
-
-    closeForm("reservationForm");
-    document.getElementById("reservationSummary").style.display = "block";
+  });
 }
 
+function showReservationSummary(form) {
+  const data = new FormData(form);
+
+  const fields = {
+    sumSchoolID: data.get("SchoolID"),
+    sumDateFiled: data.get("dateFiled"),
+    sumActivity: data.get("activity"),
+    sumObjective: data.get("objective"),
+    sumDateOfUse: data.get("dateOfUse"),
+    sumTime: data.get("time"),
+    sumYearSection: data.get("yearAndSection"),
+    sumStudents: data.get("numberOfStudent"),
+    sumTeacher: data.get("teacher"),
+    sumApprovedBy: data.get("ApprovedBy"),
+  };
+
+  for (const [id, value] of Object.entries(fields)) {
+    document.getElementById(id).textContent = value || "-";
+  }
+
+  const items = data.getAll("item[]").filter((item) => item.trim());
+
+  document.getElementById("sumItems").textContent = items.join(", ") || "-";
+
+  closeForm("reservationForm");
+  document.getElementById("reservationSummary").style.display = "block";
+}
 
 function printSummary() {
-    const printable = document.getElementById("printableReservation");
+  const printable = document.getElementById("printableReservation");
 
-    if (!printable) {
-        alert("Reservation summary not found.");
-        return;
-    }
+  if (!printable) {
+    alert("Reservation summary not found.");
+    return;
+  }
 
-    // Open a separate window without the website's layout
-    const printWindow = window.open("", "_blank", "width=900,height=700");
+  // Open a separate window without the website's layout
+  const printWindow = window.open("", "_blank", "width=900,height=700");
 
-    if (!printWindow) {
-        alert("Please allow pop-ups to print the reservation.");
-        return;
-    }
+  if (!printWindow) {
+    alert("Please allow pop-ups to print the reservation.");
+    return;
+  }
 
-    printWindow.document.open();
+  printWindow.document.open();
 
-    printWindow.document.write(`
+  printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -1287,13 +1361,13 @@ function printSummary() {
         </html>
     `);
 
-    printWindow.document.close();
+  printWindow.document.close();
 
-    // Wait for the logo and other resources before printing
-    printWindow.onload = function () {
-        printWindow.focus();
-        printWindow.print();
-    };
+  // Wait for the logo and other resources before printing
+  printWindow.onload = function () {
+    printWindow.focus();
+    printWindow.print();
+  };
 }
 
 // end of reservation
