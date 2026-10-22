@@ -5317,3 +5317,45 @@ table td input {
 .inventory-table tbody tr:hover td {
     background-color: #f0f8f0 !important;
 }
+/* CREATE ACCOUNT & MANAGE ACCOUNT BUTTONS */
+.main button[onclick*="createAccount"],
+.main button[onclick*="manageAccount"] {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #276738;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    
+
+}
+
+
+/* HOVER EFFECT */
+.main button[onclick*="createAccount"]:hover,
+.main button[onclick*="manageAccount"]:hover {
+    background-color: #1d512b;
+    transform: translateY(-1px);
+}
+
+
+/* CLICK EFFECT */
+.main button[onclick*="createAccount"]:active,
+.main button[onclick*="manageAccount"]:active {
+    transform: translateY(0);
+}
+
+
+/* RESPONSIVE BUTTONS */
+@media (max-width: 600px) {
+    .main button[onclick*="createAccount"],
+    .main button[onclick*="manageAccount"] {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+}

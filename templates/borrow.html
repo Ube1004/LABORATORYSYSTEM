@@ -63,7 +63,7 @@
     <div class="user-box">
 
         <p class="name">
-            Ashley Basilio
+            {{   session['username']   }}
         </p>
 
         <small>
@@ -1264,6 +1264,7 @@
             name="teacher"
             type="text"
             placeholder="Enter teacher's name"
+            oninput = "this.value = this.value.replace(/[0-9]/g, '')"
             required>
     </div>
 
@@ -1274,6 +1275,7 @@
             name="ApprovedBy"
             type="text"
             placeholder="Enter approving person's name"
+            oninput = "this.value = this.value.replace(/[0-9]/g, '')"
             required>
     </div>
 
@@ -1809,7 +1811,8 @@
 
                 <input
                     type="text"
-                    placeholder="Instructor Name">
+                    placeholder="Instructor Name"
+                    oninput = "this.value = this.value.replace(/[0-9]/g, '')">
 
             </div>
 
@@ -1820,7 +1823,8 @@
 
                 <input
                     type="text"
-                    placeholder="Student Name">
+                    placeholder="Student Name"
+                    oninput = "this.value = this.value.replace(/[0-9]/g, '')">
 
             </div>
 
@@ -1831,7 +1835,8 @@
 
                 <input
                     type="text"
-                    placeholder="Laboratory Assistant Name">
+                    placeholder="Laboratory Assistant Name"
+                    oninput = "this.value = this.value.replace(/[0-9]/g, '')">
 
             </div>
 
@@ -1935,7 +1940,8 @@
                     <input
                         type="text"
                         id="createName"
-                        name="createName">
+                        name="createName"
+                        oninput = "this.value = this.value.replace(/[0-9]/g, '')">
                 </div>
 
         <div class="col"> 
@@ -2007,7 +2013,7 @@
 
         <div class="col">
             <label>Name:</label>
-            <input type="text" id="userName">
+            <input type="text" id="userName" oninput = "this.value = this.value.replace(/[0-9]/g, '')">
         </div>
 
         <div class="col"> 
