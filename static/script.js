@@ -208,6 +208,7 @@ await scanner.start(
     alert("Could not start the camera.");
   }
 }
+
 async function stopScanner(afterStop) {
   
   if (scanner) {
