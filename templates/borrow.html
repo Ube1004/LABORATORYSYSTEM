@@ -1360,222 +1360,134 @@
 
 <!-- ================= BREAKAGE FORM ================= -->
 
-<!-- ================= BREAKAGE FORM ================= -->
-
 <div id="breakageForm" class="modal">
-
     <div class="modal-content large-form">
 
         <span class="close" onclick="closeForm('breakageForm')">&times;</span>
 
-
-  <div class="form-header">
-
-    <img src="{{ url_for('static', filename='images/logo(1).png') }}"
-         class="form-logo"
-         alt="City College of Angeles Logo">
-
+        <div class="form-header">
+            <img src="{{ url_for('static', filename='images/logo(1).png') }}"
+                 class="form-logo"
+                 alt="City College of Angeles Logo">
 
             <h2>CITY COLLEGE OF ANGELES</h2>
-
-            <h2>
-                Institute of Education, Arts and Sciences
-            </h2>
-
+            <h2>Institute of Education, Arts and Sciences</h2>
             <h3>SCIENCE LABORATORY</h3>
-
             <h4>BREAKAGE FORM</h4>
-
         </div>
 
-
-        <form>
+        <form action="{{ url_for('saveBreakage') }}" method="POST">
 
             <div class="row">
-
                 <div class="col">
-
                     <label>Subject:</label>
-                    <input type="text" placeholder="Enter subject">
+                    <input type="text" name="subject"
+                           placeholder="Enter subject" required>
 
                     <label>Group No.:</label>
-                    <input type="text" placeholder="Enter group number">
+                    <input type="text" name="groupNo"
+                           placeholder="Enter group number">
 
                     <label>Schedule:</label>
-                    <input type="text" placeholder="Enter schedule">
-
+                    <input type="text" name="schedule"
+                           placeholder="Enter schedule">
                 </div>
-
 
                 <div class="col">
+                    <label>Instructor's Name &amp; Signature:</label>
+                    <input type="text" name="instructor"
+                           placeholder="Enter instructor's name" required>
 
-                    <label>Instructor's Name & Signature:</label>
-                    <input
-                        type="text"
-                        placeholder="Enter instructor's name">
-
-                    <label>Course & Section:</label>
-                    <input
-                        type="text"
-                        placeholder="Enter course and section">
+                    <label>Course &amp; Section:</label>
+                    <input type="text" name="courseSection"
+                           placeholder="Enter course and section">
 
                     <label>Date:</label>
-                    <input type="date">
-
+                    <input type="date" name="date" required>
                 </div>
-
             </div>
 
+            <h4>Group Members and Student Numbers</h4>
 
-            <h4>
-                Group Members and Student Numbers <br>
-                <button
-                        type="button"
-                        onclick="addInput('members', 'text', 'member[]', 'Student', 'Name & Student No. ','405px' )">
-                        + Add Student
-                    </button>
-                    <br>
-            </h4>
-
-            
-            <div class="members" id="members">
-                <input type="text" id = "Student" placeholder="Name & Student No. 1">
-                <input type="text" id = "Student" placeholder="Name & Student No. 2">
-
-                
-
-            </div>
-            
-
-
-            <table class="breakage-table">
-
-                <tr>
-
-                    <th>Quantity</th>
-                    <th>Item Description</th>
-                    <th>Remarks</th>
-                    <th>Unit Cost</th>
-                    <th>Total Amount</th>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        <input type="number" min="1">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        <input type="number" min="1">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        <input type="number" min="1">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="text">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                    <td>
-                        <input type="number" min="0" step="0.01">
-                    </td>
-
-                </tr>
-
-            </table>
-
-
-            <div class="signatures">
-
-                <div>
-
-                    <p>Prepared by:</p>
-
-                    <input
-                        type="text"
-                        placeholder="Laboratory Custodian">
-
-                    <small>
-                        Laboratory Custodian
-                    </small>
-
-                </div>
-
-
-                <div>
-
-                    <p>Signature of Group Leader:</p>
-
-                    <input
-                        type="text"
-                        placeholder="Group Leader">
-
-                </div>
-
-            </div>
-
-
-            <button type="submit">
-                Submit Report
+            <button type="button"
+                    class="add-member-btn"
+                    onclick="addInput('members', 'text', 'member[]', 'Student', 'Name & Student No. ', '405px')">
+                + Add Student
             </button>
 
+            <div class="members" id="members">
+                <input type="text" name="member[]"
+                       placeholder="Name & Student No. 1" required>
+                <input type="text" name="member[]"
+                       placeholder="Name & Student No. 2">
+            </div>
+
+            <div class="breakage-table-wrapper">
+                <table class="breakage-table">
+                    <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Item Code</th>
+                                <th>Item Description</th>
+                                <th>Remarks</th>
+                                <th>Unit Cost</th>
+                               
+                            </tr>
+                        </thead>
+
+                    <tbody id="breakageItems">
+    <tr>
+        <td>
+            <input type="text" name="item[]" placeholder="Item" required>
+        </td>
+        <td>
+            <input
+    type="text"
+    name="itemCode[]"
+    placeholder="Item code"
+    onblur="checkBreakageItemCode(this)"
+    required
+>
+        </td>
+        <td>
+            <input type="text" name="description[]" placeholder="Item description">
+        </td>
+        <td>
+            <input type="text" name="remarks[]" placeholder="Remarks">
+        </td>
+        <td>
+            <input type="number" name="unitCost[]" min="0" step="0.01" value="0" required>
+        </td>
+    </tr>
+</tbody>
+                </table>
+            </div>
+
+            <button type="button"
+                    class="breakage-add-btn"
+                    onclick="addBreakageItem()">
+                + Add Item
+            </button>
+
+            <div class="signatures">
+                <div>
+                    <p>Prepared by:</p>
+                    <input type="text" name="preparedBy"
+                           placeholder="Laboratory Custodian">
+                    <small>Laboratory Custodian</small>
+                </div>
+
+                <div>
+                    <p>Signature of Group Leader:</p>
+                    <input type="text" name="groupLeader"
+                           placeholder="Group Leader">
+                </div>
+            </div>
+
+            <button type="submit">Submit Report</button>
+
         </form>
-
     </div>
-
 </div>
 
 

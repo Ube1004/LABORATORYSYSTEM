@@ -62,35 +62,33 @@
                 </tr>
             </thead>
 
-            <tbody>
+ 
+<tbody>
     {% for group in data %}
     <tr class="data-row">
         <td>{{ group["dateOfUse"] }}</td>
         <td>{{ group["time"] }}</td>
-        <td>{{ group["reservations"][0]["activity"] }}</td>
+        <td>{{ group["activity"] }}</td>
         <td>{{ group["teacher"] }}</td>
 
         <td>
-    {% for row in group["reservations"] %}
-        <div>
-            {{ row["ItemType"] }}
-        </div>
-    {% endfor %}
-</td>
+            {% for row in group["reservations"] %}
+                <div>{{ row["ItemType"] or "Unknown" }}</div>
+            {% endfor %}
+        </td>
 
-       
-  <td>
-    <button
-        type="button"
-        onclick="openMoreForm(this)"
-        data-reservations='{{ group["reservations"] | tojson | forceescape }}'>
-        More
-    </button>
-</td>
-</td>
+        <td>
+            <button
+                type="button"
+                onclick="openMoreForm(this)"
+                data-reservations='{{ group["reservations"] | tojson | forceescape }}'>
+                More
+            </button>
+        </td>
     </tr>
     {% endfor %}
 </tbody>
+
             </tbody>
         </table>
 
