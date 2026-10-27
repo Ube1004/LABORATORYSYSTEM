@@ -42,3 +42,18 @@ def save():
 
 /ADD INPUT/
 <button onclick="addInput(divID, type, name, id, placeholder, size = "315px",thenWhere)"></button>
+
+
+/ ASYNC AWAIT / 
+async function getItem() {
+    let response = await fetch('/getItem');
+
+    let data = await response.json();
+
+    console.log(data.name);     // Microscope
+    console.log(data.quantity); // 5
+}
+
+@app.route('/getItem')
+def get_item():
+    return {"name": "Microscope", "quantity": 5}

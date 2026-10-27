@@ -68,6 +68,10 @@ function returning() {
   window.location.href = "/returning";
 }
 
+function gotoForms() {
+  window.location.href = "/broken";
+}
+
 function modifyRecord(id) {
   window.location.href = "/modify/" + id;
 }
@@ -1165,6 +1169,54 @@ function addInput(divID, type, name, id, placeholder, size = "315px",thenWhere) 
 }
 
 
+
+function addBreakageItem() {
+    const tbody = document.getElementById("breakageItems");
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td>
+            <input type="text" name="item[]" placeholder="Item" required>
+        </td>
+        <td>
+            <input type="text" name="itemCode[]" placeholder="Item code" required>
+        </td>
+        <td>
+            <input type="text" name="description[]" placeholder="Item description">
+        </td>
+        <td>
+            <input type="text" name="remarks[]" placeholder="Remarks">
+        </td>
+        <td>
+            <input type="number" name="unitCost[]" min="0" step="0.01" value="0" required>
+        </td>
+    `;
+
+    tbody.appendChild(row);
+}
+
+// Automatically calculate quantity × unit cost
+document.getElementById("breakageItems").addEventListener("input", function(event) {
+    if (
+        event.target.name !== "quantity[]" &&
+        event.target.name !== "unitCost[]"
+    ) {
+        return;
+    }
+
+    const row = event.target.closest("tr");
+
+    const quantity =
+        Number(row.querySelector('[name="quantity[]"]').value) || 0;
+
+    const unitCost =
+        Number(row.querySelector('[name="unitCost[]"]').value) || 0;
+
+    row.querySelector('[name="totalAmount[]"]').value =
+        (quantity * unitCost).toFixed(2);
+});
+
+
 /* =========================================================
    HIDDEN ROWS ("See All" / "See Less")
    ========================================================= */
@@ -1216,7 +1268,6 @@ function seeAll(tableId, buttonId, limit = 5) {
 
 const reservationForm = document.querySelector("#reservationForm form");
 
-// Guard: this script is shared by pages that don't have the reservation form
 if (reservationForm) {
   reservationForm.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -1375,6 +1426,7 @@ function printSummary() {
 // end of reservation
 
 
+
 // forms
 function openMoreForm(button) {
     const reservations = JSON.parse(button.dataset.reservations);
@@ -1382,35 +1434,76 @@ function openMoreForm(button) {
 
     content.innerHTML = "";
 
+    // Shared details: display them only once
+    const first = reservations[0];
+
+    const fields = [
+        ["Activity", first.activity],
+        ["Objective", first.objective],
+        ["Date Filed", first.dateFiled],
+        ["Date of Activity", first.dateOfUse],
+        ["Time", first.time],
+        ["Year & Section", first.yearAndSection],
+        ["Number of Students", first.numberOfStudent],
+        ["Teacher In Charge", first.teacher],
+        ["Approved By", first.ApprovedBy],
+        ["Reservation Group ID", first.ID]
+    ];
+
+    fields.forEach(([label, value]) => {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+
+        strong.textContent = label + ": ";
+        p.appendChild(strong);
+        p.appendChild(document.createTextNode(value ?? ""));
+        content.appendChild(p);
+    });
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Materials / Equipment Needed";
+    content.appendChild(heading);
+
+    // List each item in this reservation group
     reservations.forEach(row => {
-        const section = document.createElement("div");
-
-        const fields = [
-            ["Activity", row.activity],
-            ["Objective", row.objective],
-            ["Date Filed", row.dateFiled],
-            ["Year & Section", row.yearAndSection],
-            ["Number of Students", row.numberOfStudent],
-            ["Approved By", row.ApprovedBy],
-            ["Reservation ID", row.reservationID]
-        ];
-
-        fields.forEach(([label, value]) => {
-            const p = document.createElement("p");
-            const strong = document.createElement("strong");
-
-            strong.textContent = label + ": ";
-            p.appendChild(strong);
-            p.appendChild(
-                document.createTextNode(value ?? "")
-            );
-
-            section.appendChild(p);
-        });
-
-        section.appendChild(document.createElement("hr"));
-        content.appendChild(section);
+        const p = document.createElement("p");
+        p.textContent = row.ItemType ?? "Unknown";
+        content.appendChild(p);
     });
 
     openForm("moreForm");
+}
+
+async function checkBreakageItemCode(input) {
+    const itemCode = input.value.trim();
+    const warning = input.parentElement.querySelector(".item-code-warning");
+
+    if (!itemCode) {
+        if (warning) warning.remove();
+        input.setCustomValidity("");
+        return;
+    }
+
+    try {
+        const response = await fetch("/checkItemCode", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                itemCode: itemCode
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.valid) {
+            input.setCustomValidity(result.message);
+            input.reportValidity();
+        } else {
+            input.setCustomValidity("");
+        }
+    } catch (error) {
+        console.error("Could not validate item code:", error);
+    }
 }

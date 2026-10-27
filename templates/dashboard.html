@@ -90,7 +90,7 @@
             <div class="summary-icon">📅</div>
             <div>
                 <h4>Reservations</h4>
-                <h2>{{ total_reservations|default(0) }}</h2>
+                <h2>{{ Reserved["Reserved"]|default(0) }}</h2>
                 <p>Active reservations</p>
             </div>
         </div>
@@ -98,7 +98,7 @@
             <div class="summary-icon">🛠️</div>
             <div>
                 <h4>For Repair</h4>
-                <h2>{{ total_for_repair|default(0) }}</h2>
+                <h2>{{ forRepair["forRepair"]|default(0) }}</h2>
                 <p>Equipment for repair</p>
             </div>
         </div>

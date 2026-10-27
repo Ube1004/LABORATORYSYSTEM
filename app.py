@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, render_template, redirect, request, url_for
 import sqlite3
 import logging
-from datetime import datetime
+from datetime import datetime, date
+from zoneinfo import ZoneInfo
 from flask import session
 import base64
 import os
@@ -15,7 +16,7 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 #Globarr varr
-
+dateFiled = datetime.now(ZoneInfo("Asia/Manila")).date().isoformat()
 # ============================================================
 # DATABASE PATH
 # ============================================================
@@ -77,6 +78,39 @@ def isLogin(func):
             return render_template('login.html')
         return func(*args, **kwargs)
     return wrapper
+
+## check code
+def isValidItemCode(cursor, itemCode):
+    if not itemCode:
+        return False
+
+    itemCode = itemCode.strip().upper()
+
+    cursor.execute("""
+        SELECT 1
+        FROM Items
+        WHERE UPPER(TRIM(Code)) = ?
+    """, (itemCode,))
+
+    return cursor.fetchone() is not None    
+
+@app.route('/checkItemCode', methods=['POST'])
+@isLogin
+def checkItemCode():
+    itemCode = request.form.get('itemCode', '').strip().upper()
+
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    cursor = conn.cursor()
+
+    try:
+        valid = isValidItemCode(cursor, itemCode)
+
+        return {
+            "valid": valid,
+            "message": "" if valid else "Invalid item code! Please check the code."
+        }
+    finally:
+        conn.close()    
 
 @app.route('/logout')
 def logout():
@@ -167,7 +201,7 @@ def borrow():
 
     conn.close()
 
-    return render_template('borrow.html', items=items)
+    return render_template('borrow.html', items=items, dateFiled = dateFiled)
 
 
 @app.route('/')
@@ -178,17 +212,9 @@ def home():
 @app.route('/dashboard')
 @isLogin
 def dashboard():
-    
-    
-  
     conn = sqlite3.connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
-
-    cursor = conn.cursor()
     
-    conn = sqlite3.connect(DB_PATH, timeout=5)
-    conn.row_factory = sqlite3.Row
-
     cur = conn.cursor()
 
     cur.execute("""
@@ -220,53 +246,64 @@ def dashboard():
 
     top_items = cur.fetchall()
 
-    cursor.execute("""
+    cur.execute("""
     SELECT COUNT(*) AS Total
     FROM Borrower
 """)
-    Borrowers = cursor.fetchone()
+    Borrowers = cur.fetchone()
 
-    cursor.execute("""
+    cur.execute("""
         SELECT COUNT(*) AS Borrowings
         FROM Log
         WHERE DateReturned is NULL
     """)
-    Borrowing = cursor.fetchone()
+    Borrowing = cur.fetchone()
 
-    cursor.execute("""
+    cur.execute("""
         SELECT COUNT(*) AS Return
         FROM Log
         WHERE DateReturned IS NOT NULL
     """)
-    Returned = cursor.fetchone()
+    Returned = cur.fetchone()
 
-    cursor.execute("""
+    cur.execute("""
         SELECT COUNT(*) AS Item
         FROM Items
     """)
-    Items = cursor.fetchone()
+    Items = cur.fetchone()
 
     
     
-    cursor.execute("""
+    cur.execute("""
         SELECT COUNT(*) AS Available
         FROM Items WHERE Status = 'AVAILABLE'
     """)
 
-    Available = cursor.fetchone()
+    Available = cur.fetchone()
 
-    cursor.execute("""
+    cur.execute("""
             SELECT COUNT(*) AS BROKEN
             FROM Items WHERE Status = 'BROKEN'
         """)
     
-    Broken = cursor.fetchone()
+    Broken = cur.fetchone()
 
+    cur.execute("""
+        SELECT COUNT(DISTINCT ID) AS RESERVED
+        FROM Reservation
+    """)
+    Reserved = cur.fetchone()
+
+    cur.execute("""
+        SELECT COUNT(*) AS REPAIR
+        FROM Items WHERE Status = 'FORREPAIR' 
+    """)
+    forRepair = cur.fetchone()
 
     conn.close()
     
 
-    return render_template('dashboard.html',Broken = Broken,Items=Items,Available = Available , Returned=Returned, Borrower=Borrowers, ss=88, Borrowing = Borrowing, top_borrowers=top_borrowers, top_items=top_items)
+    return render_template('dashboard.html',forRepair = forRepair, dateFiled = date.today().isoformat(), Reserved=Reserved, Broken = Broken,Items=Items,Available = Available , Returned=Returned, Borrower=Borrowers, ss=88, Borrowing = Borrowing, top_borrowers=top_borrowers, top_items=top_items)
 
 
 @app.route('/documentation')
@@ -324,6 +361,8 @@ def analytics():
 
 ##RESERVATION
 
+
+
 @app.route('/broken')
 @isLogin
 def broken():
@@ -332,30 +371,43 @@ def broken():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT Reservation.*, Items.Type AS ItemType
-    FROM Reservation
-    LEFT JOIN Items ON Reservation.ItemID = Items.ItemID
-    ORDER BY Reservation.dateOfUse ASC, Reservation.Time ASC
-""")
+        SELECT
+            Reservation.*,
+            Items.Type AS ItemType
+        FROM Reservation
+        LEFT JOIN Items
+            ON Reservation.ItemID = Items.ItemID
+        ORDER BY
+            Reservation.dateFiled DESC,
+            Reservation.reservationID DESC
+    """)
 
-    rows = cursor.fetchall()
-    grouped_data = defaultdict(list)
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    grouped_data = {}
 
     for row in rows:
-        key = (row["dateOfUse"], row["Time"], row["teacher"])
-        grouped_data[key].append(dict(row))
+        group_id = row["ID"]
 
-    datas = []
+        if group_id not in grouped_data:
+            grouped_data[group_id] = {
+                "ID": group_id,
+                "dateOfUse": row["dateOfUse"],
+                "time": row["time"],
+                "activity": row["activity"],
+                "teacher": row["teacher"],
+                "dateFiled": row["dateFiled"],
+                "reservations": []
+            }
 
-    for (date_of_use, time, teacher), reservations in grouped_data.items():
-        datas.append({
-            "dateOfUse": date_of_use,
-            "time": time,
-            "teacher": teacher,
-            "reservations": reservations
-        })
+        grouped_data[group_id]["reservations"].append(row)
 
-    return render_template("broken.html", data=datas)
+    data = list(grouped_data.values())
+
+    return render_template("broken.html", data=data)
+
+
    
 
 
@@ -1301,10 +1353,17 @@ def saveReservation():
 
             itemIDs.append(result[0])
 
+        cursor.execute("""
+                        SELECT COALESCE(MAX(ID), 0) + 1
+                        FROM Reservation
+                    """)
+        reservationID = cursor.fetchone()[0]    
+
         # Save one reservation row for each item
         for itemID in itemIDs:
             cursor.execute("""
                 INSERT INTO Reservation (
+                    ID,
                     SchoolID,
                     ItemID,
                     activity,
@@ -1317,8 +1376,9 @@ def saveReservation():
                     yearAndSection,
                     numberOfStudent
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
+                reservationID,
                 schoolID,
                 itemID,
                 activity,
@@ -1335,7 +1395,7 @@ def saveReservation():
         conn.commit()
 
         # Tell JavaScript that saving succeeded
-        return "Reservation saved successfully", 200
+        return redirect("/broken")
 
     except sqlite3.Error:
         conn.rollback()
@@ -1368,6 +1428,169 @@ def printReservation(reservationID):
         'printReservation.html',
         reservation=reservation
     )
+
+## BREAKAGE
+
+
+
+
+
+@app.route('/saveBreakage', methods=['POST'])
+@isLogin
+def saveBreakage():
+    conn = sqlite3.connect(DB_PATH, timeout=5)
+    conn.execute("PRAGMA foreign_keys = ON")
+    cursor = conn.cursor()
+
+    try:
+        # Main report fields
+        subject = request.form.get('subject', '').strip()
+        groupNo = request.form.get('groupNo', '').strip()
+        schedule = request.form.get('schedule', '').strip()
+        instructor = request.form.get('instructor', '').strip()
+        courseSection = request.form.get('courseSection', '').strip()
+        reportDate = request.form.get('date', '').strip()
+        preparedBy = request.form.get('preparedBy', '').strip()
+        groupLeader = request.form.get('groupLeader', '').strip()
+
+        # Group members
+        members = [
+            member.strip()
+            for member in request.form.getlist('member[]')
+            if member.strip()
+        ]
+
+        # Item fields
+        itemsList = request.form.getlist('item[]')
+        descriptions = request.form.getlist('description[]')
+        itemCodes = request.form.getlist('itemCode[]')
+        remarksList = request.form.getlist('remarks[]')
+        unitCosts = request.form.getlist('unitCost[]')
+
+        # Validate required report fields
+        if not subject or not instructor or not reportDate or not members:
+            return "Please complete the required report fields and members.", 400
+
+        # Validate matching item rows
+        if not (
+            len(itemsList) == len(descriptions)
+            == len(itemCodes) == len(remarksList)
+            == len(unitCosts)
+        ):
+            return "The item rows contain mismatched fields.", 400
+
+        items = []
+
+        for i in range(len(itemsList)):
+            itemName = itemsList[i].strip()
+            description = descriptions[i].strip()
+            itemCode = itemCodes[i].strip().upper()
+            remarks = remarksList[i].strip()
+
+            # Skip completely empty rows
+            if not itemName and not itemCode and not description:
+                continue
+
+            # Validate required item fields
+            if not itemName or not itemCode:
+                return "Every damaged item needs an item name and item code.", 400
+
+            # Validate item code using the reusable function
+            if not isValidItemCode(cursor, itemCode):
+                return (
+                    f"Invalid item code '{itemCode}'. "
+                    "Please enter a valid inventory code."
+                ), 400
+
+            # Validate unit cost
+            try:
+                unitCost = float(unitCosts[i] or 0)
+            except (ValueError, TypeError):
+                return "Please enter a valid unit cost.", 400
+
+            if unitCost < 0:
+                return "Unit cost cannot be negative.", 400
+
+            # Store item details
+            items.append((
+                itemName,
+                description,
+                itemCode,
+                remarks,
+                unitCost
+            ))
+
+        if not items:
+            return "Please enter at least one damaged item.", 400
+
+        # Calculate grand total for the report
+        reportTotal = round(sum(item[4] for item in items), 2)
+
+        # Start transaction
+        cursor.execute("BEGIN")
+
+        # Save main report with grand total
+        cursor.execute("""
+            INSERT INTO BreakageReport (
+                subject, groupNo, schedule, instructor,
+                courseSection, date, preparedBy, groupLeader,
+                totalAmount
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            subject, groupNo, schedule, instructor,
+            courseSection, reportDate, preparedBy, groupLeader,
+            reportTotal
+        ))
+
+        breakageID = cursor.lastrowid
+
+        # Save group members
+        cursor.executemany("""
+            INSERT INTO BreakageMembers (
+                breakageID, memberDetails
+            )
+            VALUES (?, ?)
+        """, [
+            (breakageID, member)
+            for member in members
+        ])
+
+        # Save damaged items without totalAmount
+        cursor.executemany("""
+            INSERT INTO BreakageItems (
+                breakageID, item, description,
+                itemCode, remarks, unitCost
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, [
+            (breakageID, *item)
+            for item in items
+        ])
+
+        # Update inventory status to BROKEN
+        for item in items:
+            cursor.execute("""
+                UPDATE Items
+                SET Status = 'BROKEN'
+                WHERE UPPER(TRIM(Code)) = ?
+            """, (item[2],))
+
+        conn.commit()
+
+        return redirect(url_for('broken'))
+
+    except sqlite3.Error:
+        conn.rollback()
+        app.logger.exception("Failed to save breakage report")
+        return (
+            "A database error occurred while saving the report. "
+            "Check the Flask terminal."
+        ), 500
+
+    finally:
+        conn.close()
+
 
 
 

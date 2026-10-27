@@ -962,34 +962,104 @@ table input {
 }
 
 
+
 /* =========================================================
-   BREAKAGE TABLE
+   BREAKAGE TABLE - OVERRIDE GLOBAL TABLE STYLES
 ========================================================= */
 
-.add-member-btn {
-    padding: 4px 10px;
-    font-size: 12px;
-    width: auto;
-    min-width: 0;
-    height: auto;
+/* Breakage Add Item button */
+.breakage-add-btn {
+    background-color: #2f5d34 !important;
+    color: white !important;
+    border: none;
+    border-radius: 5px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.breakage-add-btn:hover {
+    background-color: #244829 !important;
+}
+
+.breakage-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    margin-top: 18px;
 }
 
 .breakage-table {
     width: 100%;
-
+    min-width: 900px;
     border-collapse: collapse;
-
-    margin-top: 18px;
+    table-layout: auto;
+    background: white;
+    border-radius: 0;
+    margin: 0;
 }
 
-.breakage-table th,
+/* Fix the oversized header */
+.breakage-table thead tr {
+    height: auto !important;
+}
+
+.breakage-table th {
+    background: #2f5d34;
+    color: white;
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    height: auto !important;
+    line-height: 1.4;
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+}
+
+/* Table body */
 .breakage-table td {
+    padding: 8px;
+    height: auto !important;
+    text-align: center;
+    vertical-align: middle;
+    color: #4d554f;
+    font-size: 13px;
     border: 1px solid #d7ddd5;
+}
 
-    padding: 11px;
-
+/* Override global table input styling */
+.breakage-table input {
+    display: block;
+    width: 100%;
+    height: 38px;
+    box-sizing: border-box;
+    padding: 8px;
+    margin: 0;
+    border: 1px solid #cbdccf;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    color: #222;
     font-size: 13px;
 }
+
+.breakage-table input:focus {
+    border-color: #2f5d34;
+}
+
+/* Keep row hover subtle */
+.breakage-table tbody tr:hover {
+    background: #edf7e9;
+}
+
+/* Allow horizontal scrolling on smaller screens */
+@media (max-width: 700px) {
+    .breakage-table {
+        min-width: 900px;
+    }
+}
+
 
 
 /* =========================================================
@@ -1188,7 +1258,6 @@ table input {
 
     font-size: 13px;
 }
-
 
 /* =========================================================
    ITEM BOX
@@ -3570,19 +3639,59 @@ table td input {
    BREAKAGE FORM
    ========================================= */
 
-.table-container:nth-child(2) .records-table {
-    min-width: 1400px;
+
+.breakage-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    margin-top: 18px;
 }
 
-
-/* =========================================
-   REQUISITION FORM
-   ========================================= */
-
-.table-container:nth-child(3) .records-table {
-    min-width: 1500px;
+.breakage-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0;
+    background: white;
 }
 
+.breakage-table th,
+.breakage-table td {
+    width: 16.666%;
+    border: 1px solid #d7ddd5;
+    padding: 8px 5px;
+    font-size: 12px;
+    text-align: center;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.breakage-table th {
+    background: #2f5d34;
+    color: white;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.breakage-table td input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
+    .breakage-table {
+        min-width: 750px;
+    }
+}
 
 /* =========================================
    TABLE HEADER
